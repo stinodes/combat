@@ -1,0 +1,86 @@
+{
+  "name": "dnd-character",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^11.2.7",
+    "@testing-library/user-event": "^12.8.3",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^12.20.48",
+    "@types/react": "^17.0.44",
+    "@types/react-dom": "^17.0.15",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3",
+    "typescript": "^4.6.3"
+  },
+  "scripts": {
+    "start": "concurrently \"npm:start:renderer\" \"npm:build:main\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electronmon .\"",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "start:renderer": "cross-env BROWSER=none react-app-rewired start",
+    "build:main": "npx tsc --project tsconfig.main.json --watch",
+    "dist:win": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -w -c.extraMetadata.main=build/main.js",
+    "dist:mac": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -m -c.extraMetadata.main=build/main.js",
+    "dist:linux": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -l -c.extraMetadata.main=build/main.js",
+    "fix:electron": "npx electron-fix start"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": ".",
+  "main": "./build/main.js",
+  "engines": {
+    "node": ">=14"
+  },
+  "build": {
+    "appId": "com.electron.my_app",
+    "productName": "My App",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "utilities",
+      "type": "development"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "./public/logo512.png"
+    },
+    "linux": {
+      "target": "deb",
+      "category": "Development"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^6.5.1",
+    "cross-env": "^7.0.3",
+    "customize-cra": "^1.0.0",
+    "electron": "^13.6.9",
+    "electron-builder": "^22.14.13",
+    "electron-devtools-installer": "^3.2.0",
+    "electron-fix": "^1.1.3",
+    "electronmon": "^2.0.2",
+    "react-app-rewired": "^2.2.1",
+    "wait-on": "^6.0.1"
+  }
+}
