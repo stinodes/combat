@@ -1,10 +1,15 @@
 import styled from '@emotion/styled'
 import { ReactNode, useState } from 'react'
-import { useCurrentRoute } from 'react-navi'
 import { Button, Flex, H1, Icon, Layout, themeColor } from 'stinodes-ui'
 
 const NAVBAR_HEIGHT = 80
 const SIDEBAR_WIDTH = 240
+
+const AppContainer = styled(Flex)`
+  height: 100vh;
+  width: 100vw;
+  background-color: ${themeColor('surfaces.4')};
+`
 
 const NavBar = styled(Flex)`
   height: ${NAVBAR_HEIGHT}px;
@@ -28,7 +33,8 @@ const SideMenu = styled(Flex)<{ show: boolean; fixed: boolean }>`
     transition: unset;
   }
   width: ${SIDEBAR_WIDTH}px;
-  background: ${themeColor('surface.4')};
+  background: ${themeColor('surfaces.4')};
+  flex-direction: column;
 `
 
 const Content = styled(Flex)`
@@ -49,35 +55,48 @@ const Underlay = styled(Flex)`
   }
 `
 
-export const Navigation = ({ children }: { children: ReactNode }) => {
+export const Navigation = ({
+  children,
+  menu,
+}: {
+  children: ReactNode
+  menu: ReactNode
+}) => {
   const [showMenu, setShowMenu] = useState(false)
-  const route = useCurrentRoute()
-  const show = !route.data?.hideNavigation
+  // const show = !route.data?.hideNavigation
+  const show = true
 
   return (
-    <Flex width="100vw" height="100vh" bg="surface.4">
+    <AppContainer>
       {show && showMenu && <Underlay onClick={() => setShowMenu(false)} />}
-      {show && <SideMenu show={showMenu}></SideMenu>}
+      {show && (
+        <SideMenu show={showMenu} onClick={() => setShowMenu(false)}>
+          <Flex justifyContent="center" p={3}>
+            <H1 color="typography.4">Combat</H1>
+          </Flex>
+          {menu}
+        </SideMenu>
+      )}
       <Layout flex={1}>
         {show && (
           <NavBar>
             <Flex width={100}>
               <Button
                 size="circle"
-                bg="surface.4"
+                bg="surfaces.4"
                 onClick={() => setShowMenu(true)}
               >
-                <Icon icon="menu" color="primary" size={24} />
+                <Icon icon="menu" color="text" size={24} />
               </Button>
             </Flex>
             <Flex flex={1} justifyContent="center">
-              <H1 color="primary">{route.title || 'Dungeon Notes'}</H1>
+              <H1 color="text">Combat</H1>
             </Flex>
             <Flex width={100} />
           </NavBar>
         )}
         <Content>{children}</Content>
       </Layout>
-    </Flex>
+    </AppContainer>
   )
 }
