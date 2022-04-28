@@ -5,21 +5,23 @@
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
+    "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "@types/jest": "^26.0.24",
     "@types/node": "^12.20.48",
-    "@types/react": "^17.0.44",
-    "@types/react-dom": "^17.0.15",
+    "@types/react": "18",
+    "@types/react-dom": "18",
     "emotion-theming": "^11.0.0",
-    "navi": "^0.14.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-navi": "^0.14.4",
+    "react-redux": "^8.0.1",
+    "react-router-dom": "6",
     "react-scripts": "^4.0.3",
-    "stinodes-ui": "^0.0.1-beta.15",
-    "typescript": "^4.6.3"
+    "stinodes-ui": "^0.0.1-beta.23",
+    "typescript": "^4.6.3",
+    "xml2js": "^0.4.23"
   },
   "scripts": {
     "start": "concurrently \"npm:start:renderer\" \"npm:build:main\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electronmon .\"",
@@ -78,6 +80,7 @@
     }
   },
   "devDependencies": {
+    "@types/xml2js": "^0.4.11",
     "concurrently": "^6.5.1",
     "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
