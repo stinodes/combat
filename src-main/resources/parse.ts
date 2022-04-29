@@ -1,11 +1,6 @@
 import fs from 'fs'
 import { dnd } from '../../types/resource'
-import { parseString } from 'xml2js'
-
-const parseXml = <R extends {}>(xml: string) =>
-  new Promise<R>((resolve, reject) =>
-    parseString(xml, (error, v) => (error ? reject(error) : resolve(v))),
-  )
+import { parseStringPromise } from 'xml2js'
 
 export const parseResources = async (_: any, path: string) => {
   const fileNames = await recursivelyLoadFileNames(path)
@@ -37,7 +32,9 @@ const readFile = async (path: string) => {
     encoding: 'utf8',
   })) as string
 
-  const doc = await parseXml<{ elements: { element: dnd.Resource[] } }>(content)
+  const doc = (await parseStringPromise(content)) as {
+    elements: { element: dnd.Resource[] }
+  }
   const elementsMarkup = content
     .replace(/<\/?elements>/, '')
     .split('</element>')

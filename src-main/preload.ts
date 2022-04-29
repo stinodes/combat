@@ -5,4 +5,8 @@ contextBridge.exposeInMainWorld('api', {
   openDir: () => ipcRenderer.invoke('dialog:openDir'),
   parseResources: (path: string) =>
     ipcRenderer.invoke('data:parseResources', path),
+  openCharacter: (path: string) =>
+    ipcRenderer.invoke('data:openCharacter', path),
+  createCharacterPreview: () =>
+    ipcRenderer.invoke('data:createCharacterPreview'),
 })

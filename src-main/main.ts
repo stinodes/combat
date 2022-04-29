@@ -6,6 +6,10 @@ import installExtension, {
 } from 'electron-devtools-installer'
 import { handleDirOpen } from './fileDialog'
 import { parseResources } from './resources/parse'
+import {
+  createCharacterPreview,
+  openCharacter,
+} from './characters/openCharacter'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -40,6 +44,8 @@ app
   .then(() => {
     ipcMain.handle('dialog:openDir', handleDirOpen)
     ipcMain.handle('data:parseResources', parseResources)
+    ipcMain.handle('data:createCharacterPreview', createCharacterPreview)
+    ipcMain.handle('data:openCharacter', openCharacter)
   })
   .then(createWindow)
 
