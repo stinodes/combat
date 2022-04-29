@@ -1,3 +1,5 @@
+import { CharacterPreview as _CP, Character as _C } from './character.d'
+
 export declare namespace dnd {
   type ID = string
 
@@ -104,4 +106,7 @@ export declare namespace dnd {
     resources: { [id: dnd.ID]: dnd.Resource }
     typeIndex: { [type in dnd.ResourceType]: dnd.ID[] }
   }
+
+  export type CharacterPreview = _CP
+  export type Character = _C
 }

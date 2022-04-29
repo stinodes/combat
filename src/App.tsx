@@ -1,14 +1,15 @@
 import { useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
+import { Character } from './character'
 import { NavMenuLink } from './navigation/Link'
 import { Navigation } from './navigation/Navigation'
+import { Overview } from './overview'
 import { Resources } from './resources'
 import { readResources } from './resources/redux'
 import { useAppDispatch } from './store'
 
 function App() {
   const dispatch = useAppDispatch()
-  let location = useLocation()
 
   useEffect(() => {
     dispatch(readResources())
@@ -18,14 +19,16 @@ function App() {
     <Navigation
       menu={
         <>
+          <NavMenuLink to="/">Overview</NavMenuLink>
           <NavMenuLink to="/resources">Resources</NavMenuLink>
         </>
       }
     >
       <>
-        {location.pathname === '/' && <Navigate to="/resources" />}
         <Routes>
-          <Route path="/resources" element={<Resources />} />
+          <Route path="resources" element={<Resources />} />
+          <Route path=":characterId" element={<Character />} />
+          <Route path="" element={<Overview />} />
         </Routes>
       </>
     </Navigation>
