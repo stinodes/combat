@@ -1,10 +1,14 @@
 import { H1, H3, Layout } from 'stinodes-ui'
-import { usePreview } from '../CharacterContext'
+import { useCharacter, useCombatState, usePreview } from '../CharacterContext'
 import { Bar } from './Bar'
 import { Portrait } from './Portrait'
 
 export const UnitFrame = () => {
   const preview = usePreview()
+  const character = useCharacter()
+  const { hp } = useCombatState()
+
+  if (!character) return null
 
   return (
     <Layout p={3} direction="row">
@@ -23,8 +27,7 @@ export const UnitFrame = () => {
           </H1>
           <H3 color="surfaces.0">{preview.class}</H3>
         </Layout>
-        <Bar color="greens.3" total={46} current={30} showWarnings />
-        <Bar color="blues.3" total={46} current={30} />
+        <Bar color="greens.3" total={character.hp} current={hp} showWarnings />
       </Layout>
     </Layout>
   )
