@@ -1,6 +1,6 @@
 import { SyntheticEvent, useCallback, useState } from 'react'
 import { Button, Flex, Icon, TextField } from 'stinodes-ui'
-import { useCombatApi } from '../CharacterContext'
+import { useCombatApi } from '../../combat/CombatContext'
 
 export const HPControl = () => {
   const [value, setValue] = useState<string>('')
@@ -31,15 +31,25 @@ export const HPControl = () => {
 
   return (
     <Flex p={2} flexDirection="column">
-      <TextField type="numeric" value={value} onChange={onChange} width={150} />
+      <TextField type="numeric" value={value} onChange={onChange} width={104} />
       <Flex>
         <Flex flex={1} flexDirection="column">
-          <Button onClick={onDamage} bg="surfaces.4" color="reds.2">
+          <Button
+            onClick={onDamage}
+            bg="surfaces.4"
+            color="reds.2"
+            size="small"
+          >
             <Icon icon="minus" />
           </Button>
         </Flex>
         <Flex flex={1} flexDirection="column">
-          <Button onClick={onHeal} bg="surfaces.4" color="greens.2">
+          <Button
+            onClick={onHeal}
+            bg="surfaces.4"
+            color="greens.2"
+            size="small"
+          >
             <Icon icon="plus" />
           </Button>
         </Flex>

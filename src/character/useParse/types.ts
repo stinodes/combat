@@ -1,18 +1,21 @@
+import { dnd } from '../../../types/resource'
+
 export enum AbilityScore {
-  'str' = 'str',
-  'dex' = 'dex',
-  'con' = 'con',
-  'int' = 'int',
-  'wis' = 'wis',
-  'char' = 'char',
+  'strength' = 'strength',
+  'dexterity' = 'dexterity',
+  'constitution' = 'constitution',
+  'intelligence' = 'intelligence',
+  'wisdom' = 'wisdom',
+  'charisma' = 'charisma',
 }
+
 export enum AbilityScoreIDSubString {
-  'str' = 'STRENGTH',
-  'dex' = 'DEXTERITY',
-  'con' = 'CONSTITUTION',
-  'int' = 'INTELLIGENCE',
-  'wis' = 'WISDOM',
-  'char' = 'CHARISMA',
+  'strength' = 'STRENGTH',
+  'dexterity' = 'DEXTERITY',
+  'constitution' = 'CONSTITUTION',
+  'intelligence' = 'INTELLIGENCE',
+  'wisdom' = 'WISDOM',
+  'charisma' = 'CHARISMA',
 }
 
 export type AbilityScores = {
@@ -23,17 +26,13 @@ export type Class = {
   level: number
   rndhp: number[]
 }
-export type Character = {
-  abilityScores: AbilityScores
-  abilityScoreMods: AbilityScores
-  classes: Class[]
-  hp: number
+export type Stats = {
+  [stat: string]: dnd.StatRule[]
 }
 
-export type CombatState = {
+export type Character = {
+  classes: Class[]
   hp: number
-}
-export type CombatAPI = {
-  heal: (amount: number) => any
-  damage: (amount: number) => any
+  stats: Stats
+  getStat: (name: string) => null | number
 }

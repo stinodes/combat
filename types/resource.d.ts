@@ -2,6 +2,7 @@ import {
   CharacterPreview as _CP,
   Character as _C,
   Element as _E,
+  ItemElement as _IE,
 } from './character.d'
 
 export declare namespace dnd {
@@ -84,6 +85,8 @@ export declare namespace dnd {
     $: {
       name: string
       value: string
+      level?: string
+      equipped?: string
     }
   }
   type SelectRule = {
@@ -104,6 +107,7 @@ export declare namespace dnd {
     $: ResourceMeta
     description?: ResourceDescription
     rules?: ResourceRule[]
+    supports?: ID[]
     setters?: [{ set: ResourceSetter[] }]
   }
   export type ResourceDB = {
@@ -111,7 +115,8 @@ export declare namespace dnd {
     typeIndex: { [type in dnd.ResourceType]: dnd.ID[] }
   }
 
-  export type Element<Extra extends {} = {}> = _E<Extra>
+  export type Element<Extra = {}, Body = { element: _E[] }> = _E<Extra, Body>
   export type CharacterPreview = _CP
   export type Character = _C
+  export type ItemElement = _IE
 }

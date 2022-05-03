@@ -32,14 +32,19 @@ type SumElement = {
     id: string
   }
 }
-export type Element<Extra extends {} = {}> = {
+
+export type ItemElement = Element<
+  {},
+  { equipped?: [{ _: string; $: { location: string } }] }
+>
+
+export type Element<Extra extends {} = {}, Body = { element: Element[] }> = {
   $: {
     type: string
     id: string
     name: string
   } & Extra
-  element: Element[]
-}
+} & Body
 
 export type Character = {
   build: [
@@ -56,6 +61,12 @@ export type Character = {
               attack: Attack[]
             },
           ]
+        },
+      ]
+      equipment: [
+        {
+          item: ItemElement[]
+          storage: Element[]
         },
       ]
       elements: [

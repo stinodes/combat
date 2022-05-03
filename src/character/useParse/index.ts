@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { dnd } from '../../../types/resource'
 import { resourcesByIdSelector } from '../../resources/redux'
@@ -8,6 +8,7 @@ import {
   AbilityScores,
   Character,
   Class,
+  Stats,
 } from './types'
 
 const abilityScoreMod = (abilityScore: number) =>
@@ -56,12 +57,12 @@ const useBaseAbilityScores = (character: null | dnd.Character) => {
   return useMemo(() => {
     if (!character)
       return {
-        [AbilityScore.str]: 10,
-        [AbilityScore.dex]: 10,
-        [AbilityScore.con]: 10,
-        [AbilityScore.int]: 10,
-        [AbilityScore.wis]: 10,
-        [AbilityScore.char]: 10,
+        [AbilityScore.strength]: 10,
+        [AbilityScore.dexterity]: 10,
+        [AbilityScore.constitution]: 10,
+        [AbilityScore.intelligence]: 10,
+        [AbilityScore.wisdom]: 10,
+        [AbilityScore.charisma]: 10,
       }
 
     const rawScores = character.build[0].abilities[0]
@@ -78,32 +79,6 @@ const useBaseAbilityScores = (character: null | dnd.Character) => {
   }, [character])
 }
 
-const useAbilityScores = (character: null | dnd.Character) => {
-  const baseAbilityScores = useBaseAbilityScores(character)
-  return useMemo(() => {
-    if (!character) return baseAbilityScores
-
-    const abilityScores = { ...baseAbilityScores }
-    const asi =
-      character?.build[0].sum[0].element
-        .filter(e => e.$.type === 'Ability Score Improvement')
-        .map(e => e.$.id) || []
-
-    asi
-      .map(id =>
-        Object.keys(AbilityScoreIDSubString).find(
-          key =>
-            id.indexOf(AbilityScoreIDSubString[key as AbilityScore]) !== -1,
-        ),
-      )
-      .forEach(abilityScore => {
-        if (abilityScore) abilityScores[abilityScore as AbilityScore] += 1
-      })
-
-    return abilityScores
-  }, [character, baseAbilityScores])
-}
-
 const useHp = (classes: Class[], mod: number) => {
   return useMemo(() => {
     const rndhpPerLevel = classes.reduce((prev, c) => {
@@ -115,20 +90,170 @@ const useHp = (classes: Class[], mod: number) => {
   }, [classes, mod])
 }
 
+const useEquipment = (
+  character: null | dnd.Character,
+): { [slot: string]: dnd.Resource } => {
+  const equipment = useMemo(
+    () =>
+      character
+        ? character.build[0].equipment[0].item.filter(
+            item => item.equipped && item.equipped[0]._ === 'true',
+          )
+        : [],
+    [character],
+  )
+  const equipmentIds = useMemo(() => equipment.map(el => el.$.id), [equipment])
+  const items = useSelector(resourcesByIdSelector(equipmentIds))
+
+  return useMemo(() => {
+    return equipment.reduce((prev, item) => {
+      const resource = items.find(i => i && i.$.id === item.$.id)
+      if (!item || !item.equipped) return prev
+      return {
+        ...prev,
+        [item.equipped[0].$.location.toLowerCase()]: resource,
+      } as { [slot: string]: dnd.Resource }
+    }, {} as { [slot: string]: dnd.Resource })
+  }, [equipment, items])
+}
+
+const useStats = (
+  character: null | dnd.Character,
+): { stats: Stats; calculate: (stat: string) => null | number } => {
+  const levels = useLevels(character)
+  const equipment = useEquipment(character)
+  const baseAbilityScores = useBaseAbilityScores(character)
+  const sum = useSelector(
+    resourcesByIdSelector(
+      character?.build[0].sum[0].element.map(e => e.$.id) || [],
+    ),
+  )
+
+  const baseStats: Stats = useMemo(
+    () => ({
+      strength: [
+        {
+          $: { name: 'strength', value: String(baseAbilityScores.strength) },
+        },
+      ],
+      dexterity: [
+        {
+          $: { name: 'dexterity', value: String(baseAbilityScores.dexterity) },
+        },
+      ],
+      constitution: [
+        {
+          $: {
+            name: 'constitution',
+            value: String(baseAbilityScores.constitution),
+          },
+        },
+      ],
+      intelligence: [
+        {
+          $: {
+            name: 'intelligence',
+            value: String(baseAbilityScores.intelligence),
+          },
+        },
+      ],
+      wisdom: [
+        {
+          $: { name: 'wisdom', value: String(baseAbilityScores.wisdom) },
+        },
+      ],
+      charisma: [
+        {
+          $: { name: 'charisma', value: String(baseAbilityScores.charisma) },
+        },
+      ],
+    }),
+    [baseAbilityScores],
+  )
+
+  const stats = useMemo(
+    () =>
+      sum.reduce(
+        (prev, element) => {
+          if (!element || !element.rules || !element.rules[0].stat) return prev
+
+          element.rules[0].stat.forEach(stat => {
+            const name = stat.$.name.toLowerCase()
+            if (!prev[name]) prev[name] = []
+            prev[name] = [...prev[name], stat]
+          })
+
+          return prev
+        },
+        { ...baseStats } as Stats,
+      ),
+    [baseStats, sum],
+  )
+
+  const hasArmorEquipped = useCallback(
+    (equipString: string) => {
+      const pair = equipString.replace('[', '').replace(']', '').split(':')
+      const item = equipment[pair[0]]
+      if (pair[1] === 'any') return !!item
+      if (pair[1] === 'none') return !item
+      return (
+        !!item &&
+        !!item.setters &&
+        item.setters[0].set.some(
+          setter =>
+            setter.$.name === pair[0] && setter._.toLowerCase() === pair[1],
+        )
+      )
+    },
+    [equipment],
+  )
+
+  const meetsRequirements = useCallback(
+    (stat: dnd.StatRule) => {
+      let hasLevels = false
+      let hasEquipped = false
+      if (!stat.$.level) hasLevels = true
+      if (!stat.$.equipped) hasEquipped = true
+      if (Number(stat.$.level) <= levels.length) hasLevels = true
+      if (stat.$.equipped) {
+        hasEquipped = hasArmorEquipped(stat.$.equipped)
+      }
+      return hasLevels && hasEquipped
+    },
+    [levels, hasArmorEquipped],
+  )
+
+  const calculate = useCallback(
+    (name: string): null | number => {
+      const stat = stats[name]
+      if (name.endsWith(':modifier')) {
+        const abilityScore = name.split(':')[0]
+        const value = calculate(abilityScore) || 10
+        return abilityScoreMod(value)
+      }
+      if (!stat) return null
+      return stat.reduce((total, rule) => {
+        if (!meetsRequirements(rule)) return total
+
+        if (!isNaN(Number(rule.$.value))) return total + Number(rule.$.value)
+
+        const recursiveValue = calculate(rule.$.value)
+        if (recursiveValue === null) return total
+        return total + recursiveValue
+      }, 0)
+    },
+    [meetsRequirements, stats],
+  )
+
+  return useMemo(() => ({ stats, calculate }), [stats, calculate])
+}
+
 export const useParse = (character: null | dnd.Character): Character => {
   const classes = useClasses(character)
+  const equipment = useEquipment(character)
+  const stats = useStats(character)
 
-  const abilityScores = useAbilityScores(character)
-  const abilityScoreMods = useMemo(() => {
-    return Object.keys(abilityScores).reduce((prev, key) => {
-      prev[key as AbilityScore] = abilityScoreMod(
-        abilityScores[key as AbilityScore],
-      )
-      return prev
-    }, {} as AbilityScores)
-  }, [abilityScores])
-
-  const hp = useHp(classes, abilityScoreMods.con)
+  const hp = useHp(classes, stats.calculate('constitution:modifier') || 10)
 
   const classFeatures = useSelector(
     resourcesByIdSelector(
@@ -146,13 +271,13 @@ export const useParse = (character: null | dnd.Character): Character => {
   )
 
   // console.log(character)
-  console.log('Ability Scores: ', abilityScores)
-  console.log('Ability Scores Mods: ', abilityScoreMods)
+  console.log('Stats: ', stats.stats)
+  console.log('Equipment: ', equipment)
   console.log('Class features: ', classFeatures)
   console.log('Feats: ', feats)
 
   return useMemo(
-    () => ({ classes, hp, abilityScores, abilityScoreMods }),
-    [classes, hp, abilityScores, abilityScoreMods],
+    () => ({ classes, hp, stats: stats.stats, getStat: stats.calculate }),
+    [classes, hp, stats],
   )
 }
