@@ -1,8 +1,16 @@
+import styled from '@emotion/styled'
 import { useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { Box, H4, Modal } from 'stinodes-ui'
+import { Box, H4, Modal, Text } from 'stinodes-ui'
 import { dnd } from '../../types/resource'
 import { resourceByIdSelector, resourcesByIdSelector } from './redux'
+
+const Description = styled(Box)`
+  .feature {
+    margin-right: 8px;
+    font-weight: bold;
+  }
+`
 
 type ResourceModalProps = {
   id: null | dnd.ID
@@ -31,9 +39,21 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
   return (
     <Modal visible={!!id} onClose={onClose} width="90vw" maxWidth={924}>
       <Modal.Header>{resource.$.name}</Modal.Header>
+      <Text color="surfaces.0" fontSize={12} alignSelf="flex-end">
+        {resource.$.id}
+      </Text>
       {resource.description && (
         <Box pb={2}>
-          <div dangerouslySetInnerHTML={{ __html: resource.description }} />
+          <Description
+            dangerouslySetInnerHTML={{
+              __html: resource.description
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#039;/g, "'"),
+            }}
+          />
         </Box>
       )}
       {additionalResources?.map(
@@ -41,7 +61,16 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
           resource?.description && (
             <Box>
               <H4 fontSize={20}>{resource.$.name}</H4>
-              <div dangerouslySetInnerHTML={{ __html: resource.description }} />
+              <Description
+                dangerouslySetInnerHTML={{
+                  __html: resource.description
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#039;/g, "'"),
+                }}
+              />
             </Box>
           ),
       )}

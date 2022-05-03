@@ -8,10 +8,12 @@ import {
 } from 'react'
 import { dnd } from '../../types/resource'
 import { LOCAL_STORAGE_CHARACTERSE_KEY } from '../overview'
+import { useParse } from './useParse'
+import { Character } from './useParse/types'
 
 type ContextType = {
   preview: dnd.CharacterPreview
-  character: null | dnd.Character
+  character: null | Character
 }
 
 const CharacterContext = createContext<ContextType>({
@@ -32,10 +34,15 @@ export const CharacterProvider = ({
     const characters = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_CHARACTERSE_KEY) || '[]',
     ) as dnd.CharacterPreview[]
-    return characters.find(ch => ch.id === id) as dnd.Character
+    return characters.find(ch => ch.id === id) as dnd.CharacterPreview
   }, [id])
 
-  const value = useMemo(() => ({ preview, character }), [preview, character])
+  const parsedCharacter = useParse(character)
+
+  const value = useMemo(
+    () => ({ preview, character: parsedCharacter }),
+    [preview, parsedCharacter],
+  )
 
   const fetchCharacter = async (path: string) => {
     const character = await window.api.openCharacter(path)
