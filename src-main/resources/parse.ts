@@ -47,7 +47,7 @@ const readFile = async (path: string) => {
   })
 
   doc.elements.element?.forEach((el, i) => {
-    if (el.description) el.description = descriptions[i]
+    if (el.description) el.description = descriptions[i] || undefined
   })
 
   return doc

@@ -65,3 +65,6 @@ export const usePreview = () => useCharacterContext().preview
 export const useName = () => usePreview().name
 export const usePortrait = () => usePreview().portrait
 export const useCharacter = () => useCharacterContext().character
+export const useStat = (stat: string) =>
+  useCharacterContext().character?.getStat(stat)
+export const useMagic = () => useCharacterContext().character?.magic

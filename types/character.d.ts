@@ -46,6 +46,25 @@ export type Element<Extra extends {} = {}, Body = { element: Element[] }> = {
   } & Extra
 } & Body
 
+export type SpellSlotLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+export type SpellSlotName = `s${SpellSlotLevel}`
+type SpellCasting = {
+  $: {
+    name: string
+    ability: Ability
+    attack: string
+    dc: string
+    source: ID
+  }
+  slots: [
+    {
+      $: {
+        [slot in SpellSlotName]: string
+      }
+    },
+  ]
+}
+
 export type Character = {
   build: [
     {
@@ -73,6 +92,12 @@ export type Character = {
         {
           $: { 'level-count': string; 'registered-count': string }
           element: Element[]
+        },
+      ]
+      magic: [
+        {
+          $: { multiclass: 'true' | 'false'; level: string }
+          spellcasting: SpellCasting[]
         },
       ]
       sum: [
