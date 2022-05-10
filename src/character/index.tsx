@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Flex, Spinner } from 'stinodes-ui'
+import { Flex, Layout, Spinner } from 'stinodes-ui'
 import { CombatProvider } from '../combat/CombatContext'
 import { Controls } from '../combat/Controls'
 import { Log } from '../combat/Log'
@@ -21,12 +21,14 @@ export const Character = () => {
               <Spinner size={64} />
             </Flex>
           ) : (
-            <>
-              <Flex justifyContent="space-between">
+            <Layout spacing={3} px={2} direction="row" pt={5}>
+              <Flex flexDirection="column" pl={162}>
                 <Controls />
-                <Log />
               </Flex>
-            </>
+              <Flex flexDirection="column">
+                <Log width={400} />
+              </Flex>
+            </Layout>
           )}
         </Flex>
       </CombatProvider>

@@ -109,6 +109,7 @@ export declare namespace dnd {
     rules?: ResourceRule[]
     supports?: ID[]
     setters?: [{ set: ResourceSetter[] }]
+    spellcasting: [Resource]
   }
   export type ResourceDB = {
     resources: { [id: dnd.ID]: dnd.Resource }

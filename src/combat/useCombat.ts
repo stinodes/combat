@@ -1,10 +1,16 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch, useCallback, useEffect, useMemo, useReducer } from 'react'
 import { Character } from '../character/useParse/types'
-import { CombatAPI, CombatLog, CombatState } from './types'
+import { CombatAPI, CombatLog, CombatSpellcasting, CombatState } from './types'
 import { v4 } from 'uuid'
+import { SpellSlotName } from '../../types/character'
 
-const initialState: CombatState = { hp: 0, maxHp: 0, log: [] }
+const initialState: CombatState = {
+  hp: 0,
+  maxHp: 0,
+  spellcasting: null,
+  log: [],
+}
 
 const prepare = <P>(payload: P, undo?: boolean) => ({
   payload,
@@ -26,9 +32,33 @@ const { reducer: combatReducer, actions } = createSlice({
   initialState,
   reducers: {
     initialize: (state, action: PayloadAction<Character>) => {
+      const hp = action.payload.getStat('hp')
+      const magic = action.payload.magic
+
       state.log = []
-      state.maxHp = action.payload.hp
-      state.hp = action.payload.hp
+
+      if (hp) {
+        state.maxHp = hp
+        state.hp = hp
+      }
+
+      if (magic.spellcasting.length) {
+        const spellcasting: { [className: string]: CombatSpellcasting } = {}
+        magic.spellcasting.forEach(s => {
+          spellcasting[s.class] = {
+            ...s,
+            slots: Object.keys(s.slots).reduce((prev, key) => {
+              const castedKey = key as SpellSlotName
+              prev[castedKey] = {
+                max: s.slots[castedKey],
+                current: s.slots[castedKey],
+              }
+              return prev
+            }, {} as { [slot in SpellSlotName]: { current: number; max: number } }),
+          }
+        })
+        state.spellcasting = spellcasting
+      } else state.spellcasting = null
     },
     heal: undoableAction((state, action) => {
       if (action.meta.undo) {
@@ -44,6 +74,30 @@ const { reducer: combatReducer, actions } = createSlice({
         state.hp = Math.max(state.hp - action.payload, 0)
       }
     }),
+    consumeSpellslot: undoableAction(
+      (
+        state,
+        action: PayloadAction<
+          { class: string; slot: SpellSlotName },
+          string,
+          { undo: boolean }
+        >,
+      ) => {
+        if (!state.spellcasting) return
+        const spellslots =
+          state.spellcasting[action.payload.class].slots[action.payload.slot]
+
+        if (action.meta.undo) {
+          state.spellcasting[action.payload.class].slots[
+            action.payload.slot
+          ].current = Math.min(spellslots.current + 1, spellslots.max)
+        } else {
+          state.spellcasting[action.payload.class].slots[
+            action.payload.slot
+          ].current = Math.max(spellslots.current - 1, 0)
+        }
+      },
+    ),
   },
   extraReducers: builder => {
     builder.addMatcher(
@@ -83,6 +137,13 @@ export const useCombatInternal = (
     [dispatch],
   )
 
+  const consumeSpellslot = useCallback(
+    (className: string, slot: SpellSlotName) => {
+      dispatch(actions.consumeSpellslot({ class: className, slot }))
+    },
+    [dispatch],
+  )
+
   const undo = useCallback(
     (log: CombatLog) => {
       dispatch({ ...log, meta: { ...log.meta, undo: true } })
@@ -95,7 +156,10 @@ export const useCombatInternal = (
     dispatch(actions.initialize(character) as CombatLog)
   }, [character, dispatch])
 
-  const api = useMemo(() => ({ heal, damage, undo }), [heal, damage, undo])
+  const api = useMemo(
+    () => ({ heal, damage, undo, consumeSpellslot }),
+    [heal, damage, undo, consumeSpellslot],
+  )
   const value = useMemo(() => ({ state, api }), [state, api])
   return value
 }

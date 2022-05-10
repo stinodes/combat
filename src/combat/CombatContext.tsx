@@ -32,3 +32,4 @@ export const useCombatState = () => useCombat()[0]
 export const useCombatApi = () => useCombat()[1]
 export const useCombatUndo = () => useCombat()[1].undo
 export const useCombatLog = () => useCombat()[0].log
+export const useSpellcasting = () => useCombat()[0].spellcasting

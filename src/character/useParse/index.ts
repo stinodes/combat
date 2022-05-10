@@ -8,6 +8,9 @@ import {
   AbilityScores,
   Character,
   Class,
+  Magic,
+  SpellCasting,
+  SpellSlotName,
   Stats,
 } from './types'
 
@@ -27,30 +30,68 @@ const useLevels = (character: null | dnd.Character) =>
 
 const useClasses = (character: null | dnd.Character) => {
   const levels = useLevels(character)
+  const sum = useSelector(
+    resourcesByIdSelector(
+      character?.build[0].sum[0].element.map(e => e.$.id) || [],
+    ),
+  )
+  const classes = useSelector(
+    resourcesByIdSelector(
+      (
+        character?.build[0].sum[0].element.filter(e =>
+          ['Class', 'Multiclass'].includes(e.$.type),
+        ) as dnd.Element<{ registered: string }>[]
+      )?.map(e => e.$.id.replace('MULTICLASS', 'CLASS')) || [],
+    ),
+  )
+
+  const spellcasting = useMemo(
+    () => sum.filter(e => e && e.spellcasting),
+    [sum],
+  )
 
   return useMemo(() => {
-    return levels.reduce((prev, element) => {
-      const classForElement =
-        element.$.class ||
-        (
-          element.element.find(el => el.$.type === 'Class') as dnd.Element<{
-            registered: string
-          }>
-        )?.$.registered
+    return classes
+      .map(c => {
+        if (!c) return null
+        const name = c.$.name
+        const id = c.$.id
+        const classLevels = levels.filter(level => {
+          const classNameForLevel =
+            level.$.class ||
+            (
+              level.element.find(el => el.$.type === 'Class') as dnd.Element<{
+                registered: string
+              }>
+            )?.$.registered
 
-      let classObj = prev.find(c => c.class === classForElement) || {
-        class: classForElement,
-        level: 0,
-        rndhp: element.$.rndhp?.split(',').map(Number) || [],
-      }
+          return classNameForLevel.replace('MULTICLASS', 'CLASS') === id
+        })
+        const classSC = spellcasting.find(
+          s => s && s.spellcasting[0].$.name === name,
+        )
+        const soloSC =
+          !!classSC &&
+          classSC.rules &&
+          classSC.rules[0].grant?.some(
+            g =>
+              g.$.id === 'ID_INTERNAL_GRANT_MULTICLASS_SPELLCASTING_SLOTS_SOLO',
+          )
 
-      if (classObj.level === 0) prev.push(classObj)
-
-      classObj.level = classObj.level + 1
-
-      return prev
-    }, [] as Class[])
-  }, [levels])
+        return {
+          class: name,
+          id,
+          level: classLevels.length,
+          rndhp: levels
+            .find(level => level.$.rndhp)
+            ?.$.rndhp?.split(',')
+            .map(Number),
+          spellcasting: !!classSC,
+          soloSpellslots: !!soloSC,
+        } as Class
+      })
+      .filter(Boolean) as Class[]
+  }, [classes, levels, spellcasting])
 }
 
 const useBaseAbilityScores = (character: null | dnd.Character) => {
@@ -77,17 +118,6 @@ const useBaseAbilityScores = (character: null | dnd.Character) => {
         return prev
       }, {} as AbilityScores)
   }, [character])
-}
-
-const useHp = (classes: Class[], mod: number) => {
-  return useMemo(() => {
-    const rndhpPerLevel = classes.reduce((prev, c) => {
-      return prev.concat(c.rndhp.slice(0, c.level))
-    }, [] as number[])
-    return rndhpPerLevel.reduce((prev, hp) => {
-      return prev + hp + mod
-    }, 0)
-  }, [classes, mod])
 }
 
 const useEquipment = (
@@ -121,6 +151,7 @@ const useStats = (
   character: null | dnd.Character,
 ): { stats: Stats; calculate: (stat: string) => null | number } => {
   const levels = useLevels(character)
+  const classes = useClasses(character)
   const equipment = useEquipment(character)
   const baseAbilityScores = useBaseAbilityScores(character)
   const sum = useSelector(
@@ -129,8 +160,13 @@ const useStats = (
     ),
   )
 
+  const rndhpPerLevel = classes.reduce((prev, c) => {
+    return prev.concat(c.rndhp.slice(0, c.level))
+  }, [] as number[])
+
   const baseStats: Stats = useMemo(
     () => ({
+      hp: rndhpPerLevel.map(hp => ({ $: { name: 'hp', value: String(hp) } })),
       strength: [
         {
           $: { name: 'strength', value: String(baseAbilityScores.strength) },
@@ -168,7 +204,7 @@ const useStats = (
         },
       ],
     }),
-    [baseAbilityScores],
+    [rndhpPerLevel, baseAbilityScores],
   )
 
   const stats = useMemo(
@@ -248,12 +284,53 @@ const useStats = (
   return useMemo(() => ({ stats, calculate }), [stats, calculate])
 }
 
+const useMagic = (character: null | dnd.Character): Magic => {
+  const classes = useClasses(character)
+
+  return useMemo(() => {
+    const magic: Magic = { multiclass: false, spellcasting: [] }
+    if (!character) return magic
+
+    const rawMagic = character.build[0].magic[0]
+
+    if (rawMagic.$.multiclass === 'true') {
+      magic.multiclass = true
+    }
+
+    classes.forEach(c => {
+      if (!c.spellcasting) return
+
+      const classMagic = rawMagic.spellcasting.find(sl => sl.$.name === c.class)
+
+      if (!classMagic) return
+
+      const slots = Object.keys(classMagic.slots[0].$).reduce((prev, key) => {
+        const typedKey = key as SpellSlotName
+        prev[typedKey] = Number(classMagic.slots[0].$[typedKey])
+        return prev
+      }, {} as { [name in SpellSlotName]: number })
+
+      const spellcasting: SpellCasting = {
+        multiclass: magic.multiclass && !c.soloSpellslots,
+        class: classMagic.$.name,
+        ability: classMagic.$.ability.toLowerCase() as AbilityScore,
+        dc: Number(classMagic.$.dc),
+        attack: Number(classMagic.$.attack),
+        slots,
+      }
+
+      magic.spellcasting.push(spellcasting)
+    })
+
+    return magic
+  }, [character, classes])
+}
+
 export const useParse = (character: null | dnd.Character): Character => {
   const classes = useClasses(character)
   const equipment = useEquipment(character)
   const stats = useStats(character)
-
-  const hp = useHp(classes, stats.calculate('constitution:modifier') || 10)
+  const magic = useMagic(character)
 
   const classFeatures = useSelector(
     resourcesByIdSelector(
@@ -270,14 +347,21 @@ export const useParse = (character: null | dnd.Character): Character => {
     ),
   )
 
-  // console.log(character)
+  console.log(character)
   console.log('Stats: ', stats.stats)
+  console.log('Magic: ', magic)
+  console.log('Classes: ', classes)
   console.log('Equipment: ', equipment)
   console.log('Class features: ', classFeatures)
   console.log('Feats: ', feats)
 
   return useMemo(
-    () => ({ classes, hp, stats: stats.stats, getStat: stats.calculate }),
-    [classes, hp, stats],
+    () => ({
+      classes,
+      magic,
+      stats: stats.stats,
+      getStat: stats.calculate,
+    }),
+    [classes, magic, stats],
   )
 }

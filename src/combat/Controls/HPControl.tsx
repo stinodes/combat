@@ -1,20 +1,29 @@
 import { SyntheticEvent, useCallback, useState } from 'react'
 import { Button, Flex, Icon, TextField } from 'stinodes-ui'
-import { useCombatApi } from '../../combat/CombatContext'
+import { useStat } from '../../character/CharacterContext'
+import { useCombatApi, useCombatState } from '../../combat/CombatContext'
 
 export const HPControl = () => {
+  const maxHp = useStat('hp') || 0
+  const { hp } = useCombatState()
   const [value, setValue] = useState<string>('')
   const api = useCombatApi()
 
   const onDamage = useCallback(() => {
-    api.damage(Number(value))
+    const number = Number(value)
+    const result = Math.max(hp - number, 0)
+    const actualDamage = hp - result
+    api.damage(actualDamage)
     setValue('')
-  }, [setValue, api, value])
+  }, [setValue, api, value, hp])
 
   const onHeal = useCallback(() => {
-    api.heal(Number(value))
+    const number = Number(value)
+    const result = Math.min(hp + number, maxHp)
+    const actualHeal = result - hp
+    api.heal(actualHeal)
     setValue('')
-  }, [setValue, api, value])
+  }, [setValue, api, value, hp, maxHp])
 
   const onChange = useCallback(
     (e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
@@ -30,7 +39,7 @@ export const HPControl = () => {
   )
 
   return (
-    <Flex p={2} flexDirection="column">
+    <Flex flexDirection="column">
       <TextField type="numeric" value={value} onChange={onChange} width={104} />
       <Flex>
         <Flex flex={1} flexDirection="column">
