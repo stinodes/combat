@@ -13,7 +13,10 @@ export const createCharacterPreview = async () => {
     path: filePath,
     name: doc.character['display-properties'][0].name[0],
     class: doc.character['display-properties'][0].class[0],
-    portrait: doc.character['display-properties'][0].portrait[0].base64[0],
+    portrait:
+      doc.character['display-properties'][0].portrait[0] &&
+      doc.character['display-properties'][0].portrait[0].base64 &&
+      doc.character['display-properties'][0].portrait[0].base64[0],
     id: v4(),
   }
 }

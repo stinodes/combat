@@ -74,30 +74,30 @@ const { reducer: combatReducer, actions } = createSlice({
         state.hp = Math.max(state.hp - action.payload, 0)
       }
     }),
-    consumeSpellslot: undoableAction(
-      (
-        state,
-        action: PayloadAction<
-          { class: string; slot: SpellSlotName },
-          string,
-          { undo: boolean }
-        >,
-      ) => {
-        if (!state.spellcasting) return
-        const spellslots =
-          state.spellcasting[action.payload.class].slots[action.payload.slot]
+    consumeSpellslot: (
+      state,
+      action: PayloadAction<{ class: string; slot: SpellSlotName }>,
+    ) => {
+      if (!state.spellcasting) return
+      const spellslots =
+        state.spellcasting[action.payload.class].slots[action.payload.slot]
 
-        if (action.meta.undo) {
-          state.spellcasting[action.payload.class].slots[
-            action.payload.slot
-          ].current = Math.min(spellslots.current + 1, spellslots.max)
-        } else {
-          state.spellcasting[action.payload.class].slots[
-            action.payload.slot
-          ].current = Math.max(spellslots.current - 1, 0)
-        }
-      },
-    ),
+      state.spellcasting[action.payload.class].slots[
+        action.payload.slot
+      ].current = Math.max(spellslots.current - 1, 0)
+    },
+    restoreSpellslot: (
+      state,
+      action: PayloadAction<{ class: string; slot: SpellSlotName }>,
+    ) => {
+      if (!state.spellcasting) return
+      const spellslots =
+        state.spellcasting[action.payload.class].slots[action.payload.slot]
+
+      state.spellcasting[action.payload.class].slots[
+        action.payload.slot
+      ].current = Math.min(spellslots.current + 1, spellslots.max)
+    },
   },
   extraReducers: builder => {
     builder.addMatcher(
@@ -113,7 +113,7 @@ const { reducer: combatReducer, actions } = createSlice({
 
 const useCombatReducer = (): [
   CombatState,
-  Dispatch<PayloadAction<any, string, any>>,
+  Dispatch<PayloadAction<any, string> | PayloadAction<any, string, any>>,
 ] => {
   const [state, dispatch] = useReducer(combatReducer, initialState)
   return [state, dispatch]
@@ -144,6 +144,13 @@ export const useCombatInternal = (
     [dispatch],
   )
 
+  const restoreSpellslot = useCallback(
+    (className: string, slot: SpellSlotName) => {
+      dispatch(actions.restoreSpellslot({ class: className, slot }))
+    },
+    [dispatch],
+  )
+
   const undo = useCallback(
     (log: CombatLog) => {
       dispatch({ ...log, meta: { ...log.meta, undo: true } })
@@ -157,8 +164,8 @@ export const useCombatInternal = (
   }, [character, dispatch])
 
   const api = useMemo(
-    () => ({ heal, damage, undo, consumeSpellslot }),
-    [heal, damage, undo, consumeSpellslot],
+    () => ({ heal, damage, undo, consumeSpellslot, restoreSpellslot }),
+    [heal, damage, undo, consumeSpellslot, restoreSpellslot],
   )
   const value = useMemo(() => ({ state, api }), [state, api])
   return value

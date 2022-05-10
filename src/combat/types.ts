@@ -26,4 +26,5 @@ export type CombatAPI = {
   damage: (amount: number) => any
   undo: (log: CombatLog) => any
   consumeSpellslot: (className: string, slot: SpellSlotName) => void
+  restoreSpellslot: (className: string, slot: SpellSlotName) => void
 }

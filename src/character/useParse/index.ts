@@ -51,6 +51,7 @@ const useClasses = (character: null | dnd.Character) => {
   )
 
   return useMemo(() => {
+    let lastClass: null | string = null
     return classes
       .map(c => {
         if (!c) return null
@@ -60,12 +61,19 @@ const useClasses = (character: null | dnd.Character) => {
           const classNameForLevel =
             level.$.class ||
             (
-              level.element.find(el => el.$.type === 'Class') as dnd.Element<{
+              level.element?.find(
+                el => el.$.type === 'Class',
+              ) as void | dnd.Element<{
                 registered: string
               }>
             )?.$.registered
 
-          return classNameForLevel.replace('MULTICLASS', 'CLASS') === id
+          const className =
+            classNameForLevel &&
+            classNameForLevel.replace('MULTICLASS', 'CLASS')
+          if (!className) return lastClass === id
+          lastClass = className
+          return className === id
         })
         const classSC = spellcasting.find(
           s => s && s.spellcasting[0].$.name === name,
@@ -82,7 +90,7 @@ const useClasses = (character: null | dnd.Character) => {
           class: name,
           id,
           level: classLevels.length,
-          rndhp: levels
+          rndhp: classLevels
             .find(level => level.$.rndhp)
             ?.$.rndhp?.split(',')
             .map(Number),

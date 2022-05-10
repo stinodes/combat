@@ -1,4 +1,5 @@
 import { Card, Flex, Text } from 'stinodes-ui'
+import Hooded from '../assets/hooded.jpeg'
 import { dnd } from '../../types/resource'
 
 type CharacterCardProps = { character: dnd.CharacterPreview }
@@ -7,7 +8,9 @@ export const CharacterCard = ({ character }: CharacterCardProps) => {
     <Card
       height={200}
       style={{
-        backgroundImage: `url(data:image/png;base64,${character.portrait})`,
+        backgroundImage: character.portrait
+          ? `url(data:image/png;base64,${character.portrait})`
+          : `url(${Hooded})`,
         backgroundSize: 'cover',
       }}
       shadow
