@@ -1,111 +1,56 @@
-export type CharacterPreview = {
-  path: string
-  name: string
-  class: string
-  portrait: null | string
-  id: string
-}
-
-type Ability =
-  | 'Strength'
-  | 'Dexterity'
-  | 'Constitution'
-  | 'Wisdom'
-  | 'Intelligence'
-  | 'Charisma'
-
-type Attack = {
-  $: {
-    identifier: string
-    name: string
-    range: string
-    attack: string
-    damage: string
-    ability: Ability
+export declare namespace character {
+  export enum AbilityScore {
+    'strength' = 'strength',
+    'dexterity' = 'dexterity',
+    'constitution' = 'constitution',
+    'intelligence' = 'intelligence',
+    'wisdom' = 'wisdom',
+    'charisma' = 'charisma',
   }
-  description: [string]
-}
 
-type SumElement = {
-  $: {
-    type: string
-    id: string
+  export enum AbilityScoreIDSubString {
+    'strength' = 'STRENGTH',
+    'dexterity' = 'DEXTERITY',
+    'constitution' = 'CONSTITUTION',
+    'intelligence' = 'INTELLIGENCE',
+    'wisdom' = 'WISDOM',
+    'charisma' = 'CHARISMA',
   }
-}
 
-export type ItemElement = Element<
-  {},
-  { equipped?: [{ _: string; $: { location: string } }] }
->
-
-export type Element<Extra extends {} = {}, Body = { element: Element[] }> = {
-  $: {
-    type: string
-    id: string
-    name: string
-  } & Extra
-} & Body
-
-export type SpellSlotLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-export type SpellSlotName = `s${SpellSlotLevel}`
-type SpellCasting = {
-  $: {
-    name: string
-    ability: Ability
-    attack: string
-    dc: string
-    source: ID
+  export type AbilityScores = {
+    [name in AbilityScore]: number
   }
-  slots: [
-    {
-      $: {
-        [slot in SpellSlotName]: string
-      }
-    },
-  ]
-}
-
-export type Character = {
-  build: [
-    {
-      abilities: [
-        {
-          [a: Lowercase<Ability>]: [string]
-        },
-      ]
-      input: [
-        {
-          attacks: [
-            {
-              attack: Attack[]
-            },
-          ]
-        },
-      ]
-      equipment: [
-        {
-          item: ItemElement[]
-          storage: Element[]
-        },
-      ]
-      elements: [
-        {
-          $: { 'level-count': string; 'registered-count': string }
-          element: Element[]
-        },
-      ]
-      magic: [
-        {
-          $: { multiclass: 'true' | 'false'; level: string }
-          spellcasting: SpellCasting[]
-        },
-      ]
-      sum: [
-        {
-          $: { 'element-count': string }
-          element: SumElement[]
-        },
-      ]
-    },
-  ]
+  export type Class = {
+    class: string
+    level: number
+    rndhp: number[]
+    spellcasting: boolean
+    soloSpellslots: boolean
+  }
+  export type Stats = {
+    [stat: string]: dnd.StatRule[]
+  }
+  export type SpellSlotLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+  export type SpellSlotName = `s${SpellSlotLevel}`
+  export type SpellCasting = {
+    multiclass: boolean
+    class: string
+    ability: AbilityScore
+    dc: number
+    attack: number
+    slots: { [slot in SpellSlotName]: number }
+  }
+  export type Magic = {
+    multiclass: boolean
+    spellcasting: SpellCasting[]
+  }
+  export type Character = {
+    level: number
+    classes: Class[]
+    equipment: {
+      [slot: string]: dnd.Resource
+    }
+    stats: Stats
+    magic: Magic
+  }
 }

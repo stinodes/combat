@@ -1,24 +1,29 @@
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react'
-import { dnd } from '../../types/resource'
-import { LOCAL_STORAGE_CHARACTERSE_KEY } from '../overview'
-import { useParse } from './useParse'
-import { Character } from './useParse/types'
+import { character } from '../../types/character'
+import { aurora } from '../../types/aurora'
+import { stat } from './stats'
 
+type ExtendedCharacter = character.Character & {
+  getStat: (name: string) => null | number
+}
 type ContextType = {
-  preview: dnd.CharacterPreview
-  character: null | Character
+  preview: null | aurora.CharacterPreview
+  character: null | ExtendedCharacter
+  loading: boolean
 }
 
 const CharacterContext = createContext<ContextType>({
-  preview: null as any,
+  preview: null,
   character: null,
+  loading: false,
 })
 
 export const CharacterProvider = ({
@@ -28,30 +33,35 @@ export const CharacterProvider = ({
   id: string
   children: ReactNode
 }) => {
-  const [character, setCharacter] = useState<null | dnd.Character>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [preview, setPreview] = useState<null | aurora.CharacterPreview>(null)
+  const [character, setCharacter] = useState<null | character.Character>(null)
 
-  const preview = useMemo(() => {
-    const characters = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_CHARACTERSE_KEY) || '[]',
-    ) as dnd.CharacterPreview[]
-    return characters.find(ch => ch.id === id) as dnd.CharacterPreview
-  }, [id])
+  const value = useMemo(() => {
+    const extended: null | ExtendedCharacter = character
+      ? {
+          ...character,
+          getStat: (name: string) => character && stat(character, name),
+        }
+      : null
+    return { preview, character: extended, loading }
+  }, [preview, character, loading])
 
-  const parsedCharacter = useParse(character)
-
-  const value = useMemo(
-    () => ({ preview, character: parsedCharacter }),
-    [preview, parsedCharacter],
+  const fetchCharacter = useCallback(
+    async (id: string) => {
+      setLoading(true)
+      const preview = await window.api.preview(id)
+      const character = await window.api.loadCharacter(id)
+      setPreview(preview)
+      setCharacter(character)
+      setLoading(false)
+    },
+    [setLoading, setCharacter, setPreview],
   )
 
-  const fetchCharacter = async (path: string) => {
-    const character = await window.api.openCharacter(path)
-    setCharacter(character)
-  }
-
   useEffect(() => {
-    fetchCharacter(preview.path)
-  }, [preview])
+    fetchCharacter(id)
+  }, [id, fetchCharacter])
 
   return (
     <CharacterContext.Provider value={value}>
@@ -61,10 +71,14 @@ export const CharacterProvider = ({
 }
 
 export const useCharacterContext = () => useContext(CharacterContext)
+export const useCharacterLoading = () => useCharacterContext().loading
 export const usePreview = () => useCharacterContext().preview
-export const useName = () => usePreview().name
-export const usePortrait = () => usePreview().portrait
+export const useName = () => usePreview()?.name
+export const usePortrait = () => usePreview()?.portrait
 export const useCharacter = () => useCharacterContext().character
-export const useStat = (stat: string) =>
-  useCharacterContext().character?.getStat(stat)
+export const useStat = (name: string) => {
+  const char = useCharacterContext().character
+  if (!char) return 0
+  return stat(char, name)
+}
 export const useMagic = () => useCharacterContext().character?.magic

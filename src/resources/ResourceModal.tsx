@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Box, H4, Modal, Text } from 'stinodes-ui'
 import { dnd } from '../../types/resource'
@@ -20,19 +20,41 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
   const idRef = useRef(id)
   if (id) idRef.current = id
 
-  const resource = useSelector(resourceByIdSelector(idRef.current))
+  const [loading, setLoading] = useState<boolean>(false)
+  const [resource, setResource] = useState<null | dnd.Resource>(null)
+  const [additionalResources, setAdditionalResources] = useState<
+    dnd.Resource[]
+  >([])
 
-  const additionalResourceIds = useMemo(() => {
-    if (!resource?.description) return []
-    const finds = Array.from(
-      resource.description.matchAll(/element="([\w_]+)"/g),
-    ).map(match => match[1])
-    return finds
-  }, [resource])
+  const fetchResources = useCallback(
+    async (id: string) => {
+      setLoading(true)
 
-  const additionalResources = useSelector(
-    resourcesByIdSelector(additionalResourceIds),
+      const resource = await window.api.resourceForId(id)
+
+      if (!resource) return
+
+      const additionalIds = resource.description
+        ? Array.from(resource.description.matchAll(/element="([\w_]+)"/g)).map(
+            match => match[1],
+          )
+        : []
+
+      const additionalResources = await window.api.resourcesForIds(
+        additionalIds,
+      )
+
+      setResource(resource)
+      setAdditionalResources(additionalResources)
+
+      setLoading(false)
+    },
+    [setResource, setAdditionalResources, setLoading],
   )
+
+  useEffect(() => {
+    id && fetchResources(id)
+  }, [fetchResources, id])
 
   if (!resource) return null
 

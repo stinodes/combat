@@ -1,15 +1,14 @@
-import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
-import { Flex, FlexButton } from 'stinodes-ui'
+import { useEffect, useMemo, useState } from 'react'
+import { Flex, FlexButton, Spinner } from 'stinodes-ui'
 import { dnd } from '../../types/resource'
-import { resourcesByTypeSelector } from './redux'
 
 type ResourceListProps = {
   type: dnd.ResourceType
   onSelect: (id: dnd.ID) => any
 }
 export const ResourceList = ({ type, onSelect }: ResourceListProps) => {
-  const resources = useSelector(resourcesByTypeSelector(type))
+  const [loading, setLoading] = useState<boolean>(false)
+  const [resources, setResources] = useState<dnd.Resource[]>([])
 
   const sortedResources = useMemo(
     () =>
@@ -22,20 +21,34 @@ export const ResourceList = ({ type, onSelect }: ResourceListProps) => {
     [resources],
   )
 
+  useEffect(() => {
+    setLoading(true)
+    window.api
+      .resourcesForType(type)
+      .then(setResources)
+      .then(() => setLoading(false))
+  }, [type])
+
   return (
     <Flex flexDirection="column" flex={1}>
-      {sortedResources.map(resource => (
-        <FlexButton
-          key={resource.$.id}
-          bg="surfaces.4"
-          color="typography.4"
-          px={2}
-          py={1}
-          onClick={() => onSelect(resource.$.id)}
-        >
-          {resource.$.name}
-        </FlexButton>
-      ))}
+      {loading ? (
+        <Flex p={3} justifyContent="center">
+          <Spinner />
+        </Flex>
+      ) : (
+        sortedResources.map(resource => (
+          <FlexButton
+            key={resource.$.id}
+            bg="surfaces.4"
+            color="typography.4"
+            px={2}
+            py={1}
+            onClick={() => onSelect(resource.$.id)}
+          >
+            {resource.$.name}
+          </FlexButton>
+        ))
+      )}
     </Flex>
   )
 }

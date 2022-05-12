@@ -2,7 +2,7 @@ import fs from 'fs'
 import { dnd } from '../../types/resource'
 import { parseStringPromise } from 'xml2js'
 
-export const parseResources = async (_: any, path: string) => {
+export const parseResources = async (path: string) => {
   const fileNames = await recursivelyLoadFileNames(path)
 
   const parsedFiles = await Promise.all(fileNames.map(readFile))

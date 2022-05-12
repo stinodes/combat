@@ -5,11 +5,12 @@ import installExtension, {
   REDUX_DEVTOOLS,
 } from 'electron-devtools-installer'
 import { handleDirOpen } from './fileDialog'
-import { parseResources } from './resources/parse'
 import {
   createCharacterPreview,
   openCharacter,
 } from './characters/openCharacter'
+import { setupResourcesIPC } from './resources'
+import { setupCharacterIPC } from './characters'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -43,9 +44,12 @@ app
   .whenReady()
   .then(() => {
     ipcMain.handle('dialog:openDir', handleDirOpen)
-    ipcMain.handle('data:parseResources', parseResources)
     ipcMain.handle('data:createCharacterPreview', createCharacterPreview)
-    ipcMain.handle('data:openCharacter', openCharacter)
+    ipcMain.handle('data:openCharacter', (_, path: string) =>
+      openCharacter(path),
+    )
+    setupCharacterIPC()
+    setupResourcesIPC()
   })
   .then(createWindow)
 

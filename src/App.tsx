@@ -1,20 +1,11 @@
-import { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Character } from './character'
 import { NavMenuLink } from './navigation/Link'
 import { Navigation } from './navigation/Navigation'
 import { Overview } from './overview'
 import { Resources } from './resources'
-import { readResources } from './resources/redux'
-import { useAppDispatch } from './store'
 
 function App() {
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    dispatch(readResources())
-  }, [dispatch])
-
   return (
     <Navigation
       menu={

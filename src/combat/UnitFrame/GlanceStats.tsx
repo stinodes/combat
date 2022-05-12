@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
+import { character as characterNS } from '../../../types/character'
 import { Flex, Layout, Text, themeColor } from 'stinodes-ui'
 import { useCharacter } from '../../character/CharacterContext'
-import { AbilityScore } from '../../character/useParse/types'
 
 const StatText = styled(Text)<{ label?: boolean }>`
   ${props => (props.label ? `margin-right: 4px;` : `font-weight: bold;`)}
@@ -13,7 +13,7 @@ export const GlanceStats = () => {
 
   if (!character) return null
 
-  const abilityScores = Object.values(AbilityScore).map(score => ({
+  const abilityScores = Object.values(characterNS.AbilityScore).map(score => ({
     name: score,
     value: character.getStat(score + ':modifier'),
   }))

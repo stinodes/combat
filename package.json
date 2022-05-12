@@ -9,15 +9,16 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "@types/electron-store": "^3.2.0",
     "@types/jest": "^26.0.24",
     "@types/node": "^12.20.48",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@types/uuid": "^8.3.4",
+    "electron-store": "^8.0.1",
     "emotion-theming": "^11.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-redux": "^8.0.1",
     "react-router-dom": "6",
     "react-scripts": "^4.0.3",
     "stinodes-ui": "^0.0.1-beta.23",
@@ -35,7 +36,8 @@
     "dist:win": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -w -c.extraMetadata.main=build/main.js",
     "dist:mac": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -m -c.extraMetadata.main=build/main.js",
     "dist:linux": "react-app-rewired build && npx tsc --project tsconfig.main.json && electron-builder -l -c.extraMetadata.main=build/main.js",
-    "fix:electron": "npx electron-fix start"
+    "fix:electron": "npx electron-fix start",
+    "prettier": "prettier"
   },
   "eslintConfig": {
     "extends": "react-app"

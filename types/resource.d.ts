@@ -1,10 +1,3 @@
-import {
-  CharacterPreview as _CP,
-  Character as _C,
-  Element as _E,
-  ItemElement as _IE,
-} from './character.d'
-
 export declare namespace dnd {
   type ID = string
 
@@ -103,6 +96,7 @@ export declare namespace dnd {
     $: { name: string }
     _: string
   }
+
   export type Resource = ResourceMeta & {
     $: ResourceMeta
     description?: ResourceDescription
@@ -115,9 +109,4 @@ export declare namespace dnd {
     resources: { [id: dnd.ID]: dnd.Resource }
     typeIndex: { [type in dnd.ResourceType]: dnd.ID[] }
   }
-
-  export type Element<Extra = {}, Body = { element: _E[] }> = _E<Extra, Body>
-  export type CharacterPreview = _CP
-  export type Character = _C
-  export type ItemElement = _IE
 }

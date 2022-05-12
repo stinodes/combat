@@ -1,16 +1,14 @@
-import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Flex, Layout, Spinner } from 'stinodes-ui'
 import { CombatProvider } from '../combat/CombatContext'
 import { Controls } from '../combat/Controls'
 import { Log } from '../combat/Log'
 import { UnitFrame } from '../combat/UnitFrame'
-import { CharacterProvider } from './CharacterContext'
-import { resourcesPendingSelector } from '../resources/redux'
+import { CharacterProvider, useCharacterLoading } from './CharacterContext'
 
 export const Character = () => {
   const urlParams = useParams()
-  const isLoading = useSelector(resourcesPendingSelector)
+  const isLoading = useCharacterLoading()
   return (
     <CharacterProvider id={urlParams.characterId as string}>
       <CombatProvider>
