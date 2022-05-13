@@ -3,6 +3,7 @@ import { Resource, ResourceDB, ResourceType } from '../../types/dnd'
 import { parseResources } from './parse'
 
 export const resources = (() => {
+  let loaded = false
   let path: string = ''
   let data: ResourceDB = {
     resources: {},
@@ -16,6 +17,7 @@ export const resources = (() => {
     async load(newPath: string) {
       path = newPath
       data = await parseResources(path)
+      loaded = true
     },
 
     path() {
@@ -32,6 +34,9 @@ export const resources = (() => {
     },
     resourcesForType(type: ResourceType): Resource[] {
       return this.resourcesForIds(data.typeIndex[type])
+    },
+    loaded() {
+      return loaded
     },
   }
 })()

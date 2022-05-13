@@ -5,11 +5,13 @@ import { ResourceList } from './ResourceList'
 import { ResourceModal } from './ResourceModal'
 import { ResourceTypeList } from './ResourceTypeList'
 
-const KEY = 'resource-dir'
+export const RESOURCE_KEY = 'resource-dir'
 
 export const Resources = () => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [path, setPath] = useState<string>(localStorage.getItem(KEY) || '')
+  const [path, setPath] = useState<string>(
+    localStorage.getItem(RESOURCE_KEY) || '',
+  )
   const [selectedResourceType, selectResourceType] =
     useState<null | ResourceType>(null)
 
@@ -24,7 +26,7 @@ export const Resources = () => {
     async (path: string) => {
       setLoading(true)
       await window.api.load(path)
-      localStorage.setItem(KEY, path)
+      localStorage.setItem(RESOURCE_KEY, path)
       setLoading(false)
     },
     [setLoading],
