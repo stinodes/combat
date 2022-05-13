@@ -3,7 +3,7 @@ import { ReactNode, useState } from 'react'
 import { Button, Flex, H1, Icon, Layout, themeColor } from 'stinodes-ui'
 
 const NAVBAR_HEIGHT = 80
-const SIDEBAR_WIDTH = 240
+const SIDEBAR_WIDTH = 80
 
 const AppContainer = styled(Flex)`
   height: 100vh;
@@ -71,9 +71,7 @@ export const Navigation = ({
       {show && showMenu && <Underlay onClick={() => setShowMenu(false)} />}
       {show && (
         <SideMenu show={showMenu} onClick={() => setShowMenu(false)}>
-          <Flex justifyContent="center" p={3}>
-            <H1 color="typography.4">Combat</H1>
-          </Flex>
+          <Flex justifyContent="center" height={150} />
           {menu}
         </SideMenu>
       )}

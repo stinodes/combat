@@ -1,9 +1,9 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch, useCallback, useEffect, useMemo, useReducer } from 'react'
-import { Character } from '../character/useParse/types'
 import { CombatAPI, CombatLog, CombatSpellcasting, CombatState } from './types'
 import { v4 } from 'uuid'
-import { SpellSlotName } from '../../types/character'
+import { ExtendedCharacter } from '../character/CharacterContext'
+import { SpellSlotName } from '../types/aurora'
 
 const initialState: CombatState = {
   hp: 0,
@@ -15,7 +15,7 @@ const initialState: CombatState = {
 const prepare = <P>(payload: P, undo?: boolean) => ({
   payload,
   meta: { undo, undoable: true, id: v4() },
-  error: undefined,
+  error: undefined as void,
 })
 const undoableAction = (
   reducer: (
@@ -31,7 +31,7 @@ const { reducer: combatReducer, actions } = createSlice({
   name: 'combat',
   initialState,
   reducers: {
-    initialize: (state, action: PayloadAction<Character>) => {
+    initialize: (state, action: PayloadAction<ExtendedCharacter>) => {
       const hp = action.payload.getStat('hp')
       const magic = action.payload.magic
 
@@ -120,7 +120,7 @@ const useCombatReducer = (): [
 }
 
 export const useCombatInternal = (
-  character: null | Character,
+  character: null | ExtendedCharacter,
 ): { state: CombatState; api: CombatAPI } => {
   const [state, dispatch] = useCombatReducer()
 

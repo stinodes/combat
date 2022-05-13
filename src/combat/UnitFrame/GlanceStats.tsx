@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Flex, Layout, Text, themeColor } from 'stinodes-ui'
 import { useCharacter } from '../../character/CharacterContext'
-import { AbilityScore } from '../../character/useParse/types'
+import { AbilityScore } from '../../types/character'
 
 const StatText = styled(Text)<{ label?: boolean }>`
   ${props => (props.label ? `margin-right: 4px;` : `font-weight: bold;`)}

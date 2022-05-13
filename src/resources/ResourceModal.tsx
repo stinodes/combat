@@ -1,9 +1,7 @@
 import styled from '@emotion/styled'
-import { useMemo, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, H4, Modal, Text } from 'stinodes-ui'
-import { dnd } from '../../types/resource'
-import { resourceByIdSelector, resourcesByIdSelector } from './redux'
+import { ID, Resource } from '../types/dnd'
 
 const Description = styled(Box)`
   .feature {
@@ -13,26 +11,46 @@ const Description = styled(Box)`
 `
 
 type ResourceModalProps = {
-  id: null | dnd.ID
+  id: null | ID
   onClose: () => any
 }
 export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
   const idRef = useRef(id)
   if (id) idRef.current = id
 
-  const resource = useSelector(resourceByIdSelector(idRef.current))
+  const [loading, setLoading] = useState<boolean>(false)
+  const [resource, setResource] = useState<null | Resource>(null)
+  const [additionalResources, setAdditionalResources] = useState<Resource[]>([])
 
-  const additionalResourceIds = useMemo(() => {
-    if (!resource?.description) return []
-    const finds = Array.from(
-      resource.description.matchAll(/element="([\w_]+)"/g),
-    ).map(match => match[1])
-    return finds
-  }, [resource])
+  const fetchResources = useCallback(
+    async (id: string) => {
+      setLoading(true)
 
-  const additionalResources = useSelector(
-    resourcesByIdSelector(additionalResourceIds),
+      const resource = await window.api.resourceForId(id)
+
+      if (!resource) return
+
+      const additionalIds = resource.description
+        ? Array.from(resource.description.matchAll(/element="([\w_]+)"/g)).map(
+            match => match[1],
+          )
+        : []
+
+      const additionalResources = await window.api.resourcesForIds(
+        additionalIds,
+      )
+
+      setResource(resource)
+      setAdditionalResources(additionalResources)
+
+      setLoading(false)
+    },
+    [setResource, setAdditionalResources, setLoading],
   )
+
+  useEffect(() => {
+    id && fetchResources(id)
+  }, [fetchResources, id])
 
   if (!resource) return null
 

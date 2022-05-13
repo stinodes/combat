@@ -1,8 +1,8 @@
 import { Card, Flex, Text } from 'stinodes-ui'
 import Hooded from '../assets/hooded.jpeg'
-import { dnd } from '../../types/resource'
+import { CharacterPreview } from '../types/character'
 
-type CharacterCardProps = { character: dnd.CharacterPreview }
+type CharacterCardProps = { character: CharacterPreview }
 export const CharacterCard = ({ character }: CharacterCardProps) => {
   return (
     <Card

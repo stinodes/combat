@@ -1,14 +1,13 @@
 import styled from '@emotion/styled'
 import { ComponentPropsWithoutRef } from 'react'
 import { Link, useMatch, useResolvedPath } from 'react-router-dom'
-import { FlexButton, themeColor } from 'stinodes-ui'
+import { FlexButton, Icon, themeColor } from 'stinodes-ui'
 
 export const StyledNavMenuLink = styled(FlexButton.withComponent(Link))`
   text-decoration: none;
-  font-size: 18px;
+  font-weight: bold;
   &.active {
-    background-color: ${themeColor('text')};
-    color: ${themeColor('surfaces.4')};
+    color: ${themeColor('primary')};
   }
 `
 StyledNavMenuLink.defaultProps = {
@@ -17,9 +16,15 @@ StyledNavMenuLink.defaultProps = {
   p: 2,
 }
 
-export const NavMenuLink = (props: ComponentPropsWithoutRef<typeof Link>) => {
+export const NavMenuLink = (
+  props: { icon: string } & ComponentPropsWithoutRef<typeof Link>,
+) => {
   const resolved = useResolvedPath(props.to)
-  const match = useMatch({ path: resolved.pathname, end: true })
+  const match = useMatch({ path: resolved.pathname, end: false })
 
-  return <StyledNavMenuLink {...props} className={match ? 'active' : ''} />
+  return (
+    <StyledNavMenuLink {...props} className={match ? 'active' : ''}>
+      <Icon icon={props.icon} fontSize={32} />
+    </StyledNavMenuLink>
+  )
 }

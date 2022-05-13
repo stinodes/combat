@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { Button, Flex, Layout, Text, themeColor } from 'stinodes-ui'
-import { SpellSlotName } from '../../character/useParse/types'
+import { SpellSlotName } from '../../types/aurora'
 import { useCombatApi, useSpellcasting } from '../CombatContext'
 
 const Label = styled(Text)`

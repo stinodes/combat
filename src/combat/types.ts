@@ -1,5 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { SpellCasting, SpellSlotName } from '../character/useParse/types'
+import { SpellSlotName } from '../types/aurora'
+import { SpellCasting } from '../types/character'
 
 export type CombatLog = PayloadAction<
   any,

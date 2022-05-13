@@ -48,6 +48,7 @@ export const HPControl = () => {
             bg="surfaces.4"
             color="reds.2"
             size="small"
+            title="Shortcut: -"
           >
             <Icon icon="minus" />
           </Button>
@@ -58,6 +59,7 @@ export const HPControl = () => {
             bg="surfaces.4"
             color="greens.2"
             size="small"
+            title="Shortcut: +"
           >
             <Icon icon="plus" />
           </Button>
