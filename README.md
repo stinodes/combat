@@ -1,43 +1,31 @@
-# Getting Started with Create React App
+# COMBAT
+### A DnD combat tracker app for desktop
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) using [cra-template-typescript-electron](https://github.com/vixalie/cra-template-typescript-electron) template.
+Playing DnD with a digital character sheet and compendium is neat. But while playing,
+I end up tracking my resources and character using Sticky Notes and NotePad.  
+These are wildly flawed ways of tracking your countless resources and HP, usually resulting
+in a lack of tracking eventually.  
+  
+With this app, I aim to replace my NotePad notes, and make tracking the character and glancing its 
+stats and options easier (on the eyes).  
+  
+Personally, I build my characters using **[Aurora Builder](https://aurorabuilder.com/)**, so naturally the goal is to make use of its resources and character savefiles.
 
-## Available Scripts
+## Installation
+There are no distribution packages **yet**. Pipelines to provide these will be added soon(tm).  
+Building for all (non-mobile) platforms should be no issue, so expect that.  
+For now, you can build from source, if you are a brave warrior.
 
-In the project directory, you can run:
+## Technical
+The app is made using the following technologies:
 
-### `npm start`
+* **Electron** (I am a front-end developer after all)
+* **React** (Library of choice)
 
-Runs the app in the development mode.\
-Electron will start automaticly when dev server is ready and [http://localhost:3000](http://localhost:3000) can be visited.
+### Requirements
+To run the app **from source**, Node (16) and preferably Yarn are required.  
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Clone the source code locally, install the dependencies (`$ yarn` or `$ yarn install`) and start the app by running `$ yarn start`.  
+  
 
-Electron will restart automaticly when you modified files in `src-main` directory.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-DO NOT run this command directly, it is not enough to distribute a application only by building the renderer.
-
-### `npm run dist:*`
-
-Distribute application to the `dist` folder. `*` can be replace by `win`, `mac` or `linux`. It will build the renderer and main scripts, and then use [electron-builder](https://www.electron.build/) to package them into distributable.
-
-### `npm run fix:electron`
-
-When you encountered the error called 'Electron failed to install correctly', you will need this command to reinstall Electron module.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
