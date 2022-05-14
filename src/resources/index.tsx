@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Flex, Layout, Spinner, TextField } from 'stinodes-ui'
+import { useLoading } from '../common/useLoading'
 import { ID, ResourceType } from '../types/dnd'
 import { ResourceList } from './ResourceList'
 import { ResourceModal } from './ResourceModal'
@@ -8,7 +9,6 @@ import { ResourceTypeList } from './ResourceTypeList'
 export const RESOURCE_KEY = 'resource-dir'
 
 export const Resources = () => {
-  const [loading, setLoading] = useState<boolean>(false)
   const [path, setPath] = useState<string>(
     localStorage.getItem(RESOURCE_KEY) || '',
   )
@@ -22,14 +22,11 @@ export const Resources = () => {
     setPath(path)
   }
 
-  const loadPath = useCallback(
-    async (path: string) => {
-      setLoading(true)
+  const [loading, loadPath] = useLoading(
+    useCallback(async (path: string) => {
       await window.api.load(path)
       localStorage.setItem(RESOURCE_KEY, path)
-      setLoading(false)
-    },
-    [setLoading],
+    }, []),
   )
 
   useEffect(() => {

@@ -7,14 +7,12 @@ export const useLoading = <A extends any[], U extends unknown>(
 
   const wrappedF = useCallback(
     async (...args: A): Promise<U> => {
-      let error = null
       setLoading(true)
       try {
         const result = await f(...args)
         setLoading(false)
         return result
       } catch (e) {
-        error = e
         setLoading(false)
         return Promise.reject(e)
       }

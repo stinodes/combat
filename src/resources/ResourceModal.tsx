@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, H4, Modal, Text } from 'stinodes-ui'
+import { useLoading } from '../common/useLoading'
 import { ID, Resource } from '../types/dnd'
 
 const Description = styled(Box)`
@@ -18,34 +19,31 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
   const idRef = useRef(id)
   if (id) idRef.current = id
 
-  const [loading, setLoading] = useState<boolean>(false)
   const [resource, setResource] = useState<null | Resource>(null)
   const [additionalResources, setAdditionalResources] = useState<Resource[]>([])
 
-  const fetchResources = useCallback(
-    async (id: string) => {
-      setLoading(true)
+  const [_, fetchResources] = useLoading(
+    useCallback(
+      async (id: string) => {
+        const resource = await window.api.resourceForId(id)
 
-      const resource = await window.api.resourceForId(id)
+        if (!resource) return
 
-      if (!resource) return
+        const additionalIds = resource.description
+          ? Array.from(
+              resource.description.matchAll(/element="([\w_]+)"/g),
+            ).map(match => match[1])
+          : []
 
-      const additionalIds = resource.description
-        ? Array.from(resource.description.matchAll(/element="([\w_]+)"/g)).map(
-            match => match[1],
-          )
-        : []
+        const additionalResources = await window.api.resourcesForIds(
+          additionalIds,
+        )
 
-      const additionalResources = await window.api.resourcesForIds(
-        additionalIds,
-      )
-
-      setResource(resource)
-      setAdditionalResources(additionalResources)
-
-      setLoading(false)
-    },
-    [setResource, setAdditionalResources, setLoading],
+        setResource(resource)
+        setAdditionalResources(additionalResources)
+      },
+      [setResource, setAdditionalResources],
+    ),
   )
 
   useEffect(() => {

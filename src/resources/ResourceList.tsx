@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, FlexButton, Spinner } from 'stinodes-ui'
+import { useLoading } from '../common/useLoading'
 import { ID, Resource, ResourceType } from '../types/dnd'
 
 type ResourceListProps = {
@@ -7,8 +8,13 @@ type ResourceListProps = {
   onSelect: (id: ID) => any
 }
 export const ResourceList = ({ type, onSelect }: ResourceListProps) => {
-  const [loading, setLoading] = useState<boolean>(false)
   const [resources, setResources] = useState<Resource[]>([])
+
+  const [loading, fetchResources] = useLoading(
+    useCallback(async () => {
+      setResources(await window.api.resourcesForType(type))
+    }, [setResources]),
+  )
 
   const sortedResources = useMemo(
     () =>
@@ -22,11 +28,7 @@ export const ResourceList = ({ type, onSelect }: ResourceListProps) => {
   )
 
   useEffect(() => {
-    setLoading(true)
-    window.api
-      .resourcesForType(type)
-      .then(setResources)
-      .then(() => setLoading(false))
+    fetchResources()
   }, [type])
 
   return (
