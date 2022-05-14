@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Col, H1, Layout, Row, Spinner } from 'stinodes-ui'
+import { useLoading } from '../common/useLoading'
 import { CharacterPreview } from '../types/character'
 import { CharacterCard } from './CharacterCard'
 
 export const LOCAL_STORAGE_CHARACTERSE_KEY = 'saved-characters'
 
 export const Overview = () => {
-  const [loading, setLoading] = useState<boolean>(false)
   const [characters, setCharacters] = useState<CharacterPreview[]>([])
 
-  const fetchCharacters = useCallback(async () => {
-    setLoading(true)
-    const characters = await window.api.previews()
-    setCharacters(characters)
-    setLoading(false)
-  }, [setLoading, setCharacters])
+  const [loading, fetchCharacters] = useLoading(
+    useCallback(async () => {
+      const characters = await window.api.previews()
+      setCharacters(characters)
+    }, [setCharacters]),
+  )
 
   const addCharacter = async () => {
     await window.api.createPreview()

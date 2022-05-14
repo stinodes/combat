@@ -213,9 +213,9 @@ const getMagic = (character: null | AuroraCharacter): Magic => {
 
   const rawMagic = character.build[0].magic[0]
 
-  if (!rawMagic || !rawMagic.$) return magic
+  if (!rawMagic || !rawMagic.spellcasting) return magic
 
-  if (rawMagic.$.multiclass === 'true') {
+  if (rawMagic.$?.multiclass === 'true') {
     magic.multiclass = true
   }
 

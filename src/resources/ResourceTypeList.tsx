@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, FlexButton, Spinner } from 'stinodes-ui'
+import { useLoading } from '../common/useLoading'
 import { ResourceType } from '../types/dnd'
 
 type ResourceTypeListProps = {
@@ -10,7 +11,6 @@ export const ResourceTypeList = ({
   selectedResourceType,
   onSelect,
 }: ResourceTypeListProps) => {
-  const [loading, setLoading] = useState<boolean>(false)
   const [types, setTypes] = useState<ResourceType[]>([])
 
   const sortedTypes = useMemo(
@@ -23,13 +23,15 @@ export const ResourceTypeList = ({
     [types],
   )
 
+  const [loading, loadTypes] = useLoading(
+    useCallback(async () => {
+      setTypes(await window.api.resourceTypes())
+    }, [setTypes]),
+  )
+
   useEffect(() => {
-    setLoading(true)
-    window.api
-      .resourceTypes()
-      .then(t => setTypes(t))
-      .then(() => setLoading(false))
-  }, [])
+    loadTypes()
+  }, [loadTypes])
 
   return (
     <Flex flexDirection="column">

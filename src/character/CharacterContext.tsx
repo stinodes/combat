@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react'
+import { useLoading } from '../common/useLoading'
 import { Character, CharacterPreview } from '../types/character'
 import { stat } from './stats'
 
@@ -32,9 +33,20 @@ export const CharacterProvider = ({
   id: string
   children: ReactNode
 }) => {
-  const [loading, setLoading] = useState<boolean>(false)
   const [preview, setPreview] = useState<null | CharacterPreview>(null)
   const [character, setCharacter] = useState<null | Character>(null)
+
+  const [loading, fetchCharacter] = useLoading(
+    useCallback(
+      async (id: string) => {
+        const preview = await window.api.preview(id)
+        const character = await window.api.loadCharacter(id)
+        setPreview(preview)
+        setCharacter(character)
+      },
+      [setCharacter, setPreview],
+    ),
+  )
 
   const value = useMemo(() => {
     const extended: null | ExtendedCharacter = character
@@ -45,18 +57,6 @@ export const CharacterProvider = ({
       : null
     return { preview, character: extended, loading }
   }, [preview, character, loading])
-
-  const fetchCharacter = useCallback(
-    async (id: string) => {
-      setLoading(true)
-      const preview = await window.api.preview(id)
-      const character = await window.api.loadCharacter(id)
-      setPreview(preview)
-      setCharacter(character)
-      setLoading(false)
-    },
-    [setLoading, setCharacter, setPreview],
-  )
 
   useEffect(() => {
     fetchCharacter(id)

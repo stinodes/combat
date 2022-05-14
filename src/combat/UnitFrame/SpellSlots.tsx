@@ -53,7 +53,7 @@ export const SpellSlots = () => {
               {Object.keys(sc.slots).map(key => {
                 if (!sc.slots[key as SpellSlotName].max) return null
                 return (
-                  <Flex>
+                  <Flex key={key}>
                     {new Array(sc.slots[key as SpellSlotName].max)
                       .fill(null)
                       .map((_, i, arr) => {
