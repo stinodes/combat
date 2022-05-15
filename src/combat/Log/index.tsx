@@ -1,4 +1,4 @@
-import { Button, Flex, H3, Icon, Layout, Text } from 'stinodes-ui'
+import { Button, Flex, Icon, Layout, Text } from 'stinodes-ui'
 import { useCombatLog, useCombatUndo } from '../CombatContext'
 
 type Props = { width?: number | string }
@@ -7,7 +7,6 @@ export const Log = (props: Props) => {
   const log = useCombatLog()
   return (
     <Layout px={3} width={props.width || 250}>
-      <H3>Combat Log</H3>
       {!log.length && (
         <Flex py={3}>
           <Text fontSize={12} color="surfaces.0">

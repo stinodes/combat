@@ -18,7 +18,7 @@ const createColorGradient = (color: string) => [
 
 const reds = createColorGradient('#CA2B30')
 const yellows = createColorGradient('#FFA62B')
-const darks = createColorGradient('#1A1423')
+const darks = createColorGradient('#030305')
 
 const text = createColorGradient('#fcfeff')
 

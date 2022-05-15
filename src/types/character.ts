@@ -1,5 +1,5 @@
 import { SpellSlotName } from './aurora'
-import { Resource, StatRule } from './dnd'
+import { Resource, StatRule, ResourceDescription, ID } from './dnd'
 
 export enum AbilityScore {
   'strength' = 'strength',
@@ -52,12 +52,22 @@ export type Magic = {
   multiclass: boolean
   spellcasting: SpellCasting[]
 }
+export type Action = {
+  name: string
+  id: ID
+  action: 'Attack' | 'Reaction' | 'Bonus Action' | 'Action' | string
+  usage: null | number
+  reset: null | 'Long Rest' | 'Short Rest'
+  tooltip: string
+  description: ResourceDescription
+}
 export type Character = {
   level: number
   classes: Class[]
   equipment: {
     [slot: string]: Resource
   }
+  actions: { [id: ID]: Action }
   stats: Stats
   magic: Magic
 }

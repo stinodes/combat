@@ -1,14 +1,22 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch, useCallback, useEffect, useMemo, useReducer } from 'react'
-import { CombatAPI, CombatLog, CombatSpellcasting, CombatState } from './types'
+import {
+  CombatAPI,
+  CombatLog,
+  CombatResource,
+  CombatSpellcasting,
+  CombatState,
+} from './types'
 import { v4 } from 'uuid'
 import { ExtendedCharacter } from '../character/CharacterContext'
 import { SpellSlotName } from '../types/aurora'
+import { ID } from '../types/dnd'
 
 const initialState: CombatState = {
   hp: 0,
   maxHp: 0,
   spellcasting: null,
+  features: {},
   log: [],
 }
 
@@ -34,6 +42,7 @@ const { reducer: combatReducer, actions } = createSlice({
     initialize: (state, action: PayloadAction<ExtendedCharacter>) => {
       const hp = action.payload.getStat('hp')
       const magic = action.payload.magic
+      const actions = action.payload.actions
 
       state.log = []
 
@@ -54,12 +63,20 @@ const { reducer: combatReducer, actions } = createSlice({
                 current: s.slots[castedKey],
               }
               return prev
-            }, {} as { [slot in SpellSlotName]: { current: number; max: number } }),
+            }, {} as { [slot in SpellSlotName]: CombatResource }),
           }
         })
         state.spellcasting = spellcasting
       } else state.spellcasting = null
+
+      const actionUsage = Object.values(actions).reduce((prev, action) => {
+        if (!!action.usage)
+          prev[action.id] = { current: action.usage, max: action.usage }
+        return prev
+      }, {} as { [id: ID]: CombatResource })
+      state.features = actionUsage
     },
+
     heal: undoableAction((state, action) => {
       if (action.meta.undo) {
         state.hp = Math.max(state.hp - action.payload, 0)
@@ -67,6 +84,7 @@ const { reducer: combatReducer, actions } = createSlice({
         state.hp = Math.min(state.hp + action.payload, state.maxHp)
       }
     }),
+
     damage: undoableAction((state, action) => {
       if (action.meta.undo) {
         state.hp = Math.min(state.hp + action.payload, state.maxHp)
@@ -74,6 +92,7 @@ const { reducer: combatReducer, actions } = createSlice({
         state.hp = Math.max(state.hp - action.payload, 0)
       }
     }),
+
     consumeSpellslot: (
       state,
       action: PayloadAction<{ class: string; slot: SpellSlotName }>,
@@ -86,6 +105,7 @@ const { reducer: combatReducer, actions } = createSlice({
         action.payload.slot
       ].current = Math.max(spellslots.current - 1, 0)
     },
+
     restoreSpellslot: (
       state,
       action: PayloadAction<{ class: string; slot: SpellSlotName }>,
@@ -97,6 +117,22 @@ const { reducer: combatReducer, actions } = createSlice({
       state.spellcasting[action.payload.class].slots[
         action.payload.slot
       ].current = Math.min(spellslots.current + 1, spellslots.max)
+    },
+
+    consumeFeature: (state, action: PayloadAction<{ id: ID }>) => {
+      if (state.features[action.payload.id])
+        state.features[action.payload.id].current = Math.max(
+          state.features[action.payload.id].current - 1,
+          0,
+        )
+    },
+
+    restoreFeature: (state, action: PayloadAction<{ id: ID }>) => {
+      if (state.features[action.payload.id])
+        state.features[action.payload.id].current = Math.min(
+          state.features[action.payload.id].current + 1,
+          state.features[action.payload.id].max,
+        )
     },
   },
   extraReducers: builder => {
@@ -151,6 +187,20 @@ export const useCombatInternal = (
     [dispatch],
   )
 
+  const consumeFeature = useCallback(
+    (id: ID) => {
+      dispatch(actions.consumeFeature({ id }))
+    },
+    [dispatch],
+  )
+
+  const restoreFeature = useCallback(
+    (id: ID) => {
+      dispatch(actions.restoreFeature({ id }))
+    },
+    [dispatch],
+  )
+
   const undo = useCallback(
     (log: CombatLog) => {
       dispatch({ ...log, meta: { ...log.meta, undo: true } })
@@ -164,8 +214,24 @@ export const useCombatInternal = (
   }, [character, dispatch])
 
   const api = useMemo(
-    () => ({ heal, damage, undo, consumeSpellslot, restoreSpellslot }),
-    [heal, damage, undo, consumeSpellslot, restoreSpellslot],
+    () => ({
+      heal,
+      damage,
+      undo,
+      consumeSpellslot,
+      restoreSpellslot,
+      consumeFeature,
+      restoreFeature,
+    }),
+    [
+      heal,
+      damage,
+      undo,
+      consumeSpellslot,
+      restoreSpellslot,
+      consumeFeature,
+      restoreFeature,
+    ],
   )
   const value = useMemo(() => ({ state, api }), [state, api])
   return value

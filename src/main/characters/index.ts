@@ -23,15 +23,18 @@ export const characterApi = (() => {
     },
     async loadCharacter(id: string) {
       const preview = this.preview(id)
-      console.log(preview)
       if (!preview) return null
       const rawChar = await openCharacter(preview.path)
       const character = parseCharacter(rawChar)
-      console.log(character)
 
       store.set(`character.${id}`, character)
 
       return character
+    },
+    async raw(id: string) {
+      const preview = this.preview(id)
+      if (!preview) return null
+      return openCharacter(preview.path)
     },
     character(id: string) {
       return store.get(`character.${id}`)
@@ -48,6 +51,7 @@ export const setupCharacterIPC = () => {
   ipcMain.handle('character:load', (_, id: string) =>
     characterApi.loadCharacter(id),
   )
+  ipcMain.handle('character:raw', (_, id: string) => characterApi.raw(id))
   ipcMain.handle('character:character', (_, id: string) =>
     characterApi.character(id),
   )

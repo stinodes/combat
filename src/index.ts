@@ -11,6 +11,7 @@ export interface API {
   createPreview: () => Promise<CharacterPreview>
   previews: () => Promise<CharacterPreview[]>
   preview: (id: string) => Promise<null | CharacterPreview>
+  raw: (id: string) => Promise<null | AuroraCharacter>
   loadCharacter: (id: string) => Promise<null | Character>
   character: (id: string) => Promise<null | Character>
 }
@@ -22,5 +23,6 @@ declare global {
 }
 
 import './main'
+import { AuroraCharacter } from './types/aurora'
 import { Character, CharacterPreview } from './types/character'
 import { Resource, ResourceType } from './types/dnd'

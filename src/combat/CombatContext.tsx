@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext } from 'react'
 import { useCharacter } from '../character/CharacterContext'
+import { ID } from '../types/dnd'
 import { CombatAPI, CombatState } from './types'
 import { useCombatInternal } from './useCombat'
 
@@ -33,3 +34,5 @@ export const useCombatApi = () => useCombat()[1]
 export const useCombatUndo = () => useCombat()[1].undo
 export const useCombatLog = () => useCombat()[0].log
 export const useSpellcasting = () => useCombat()[0].spellcasting
+export const useFeatures = () => useCombat()[0].features
+export const useFeatureUsage = (id: ID) => useFeatures()[id]
