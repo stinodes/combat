@@ -1,15 +1,17 @@
+import { replaceStats } from '../../character/stats'
 import { AuroraCharacter, Element, SpellSlotName } from '../../types/aurora'
 import {
   AbilityScore,
   AbilityScoreIDSubString,
   AbilityScores,
+  Action,
   Character,
   Class,
   Magic,
   SpellCasting,
   Stats,
 } from '../../types/character'
-import { Resource } from '../../types/dnd'
+import { ID, Resource } from '../../types/dnd'
 import { resources } from '../resources'
 
 const getLevels = (
@@ -247,6 +249,43 @@ const getMagic = (character: null | AuroraCharacter): Magic => {
   return magic
 }
 
+const getActions = (character: AuroraCharacter) => {
+  const minimalCharacter = {
+    level: getLevels(character).length,
+    equipment: getEquipment(character),
+    stats: getStats(character),
+  }
+
+  const actions = resources
+    .resourcesForIds(character.build[0].sum[0].element.map(e => e?.$.id))
+    .filter(e => {
+      if (!e || !e.sheet) return false
+      return e.sheet[0]?.$?.action || e.sheet[0]?.$?.usage
+    })
+    .map(rawaction => {
+      const [usage, reset] = replaceStats(
+        minimalCharacter,
+        rawaction.sheet[0].$.usage,
+      ).split('/') || [null, null]
+      const tooltip = rawaction.sheet[0].description[0]
+      const action: Action = {
+        name: rawaction.$.name,
+        id: rawaction.$.id,
+        action: rawaction.sheet[0].$.action,
+        usage: usage && Number(usage),
+        reset: reset as Action['reset'],
+        tooltip: typeof tooltip === 'string' ? tooltip : tooltip._,
+        description: rawaction.description[0],
+      }
+      return action
+    })
+    .reduce((prev, action) => {
+      prev[action.id] = action
+      return prev
+    }, {} as { [id: ID]: Action })
+  return actions
+}
+
 export const parseCharacter = (
   character: null | AuroraCharacter,
 ): Character => {
@@ -255,25 +294,26 @@ export const parseCharacter = (
   const equipment = getEquipment(character)
   const stats = getStats(character)
   const magic = getMagic(character)
+  const actions = getActions(character)
 
-  const classFeatures = resources.resourcesForIds(
-    character?.build[0].sum[0].element
-      .filter(e => e.$.type === 'Class Feature')
-      .map(e => e.$.id) || [],
-  )
-  const feats = resources.resourcesForIds(
-    character?.build[0].sum[0].element
-      .filter(e => e.$.type === 'Feat')
-      .map(e => e.$.id) || [],
-  )
+  // const classFeatures = resources.resourcesForIds(
+  //   character?.build[0].sum[0].element
+  //     .filter(e => e.$.type === 'Class Feature')
+  //     .map(e => e.$.id) || [],
+  // )
+  // const feats = resources.resourcesForIds(
+  //   character?.build[0].sum[0].element
+  //     .filter(e => e.$.type === 'Feat')
+  //     .map(e => e.$.id) || [],
+  // )
 
-  console.log(character)
-  console.log('Stats: ', stats)
-  console.log('Magic: ', magic)
-  console.log('Classes: ', classes)
-  console.log('Equipment: ', equipment)
-  console.log('Class features: ', classFeatures)
-  console.log('Feats: ', feats)
+  // console.log(character)
+  // console.log('Stats: ', stats)
+  // console.log('Magic: ', magic)
+  // console.log('Classes: ', classes)
+  // console.log('Equipment: ', equipment)
+  // console.log('Class features: ', classFeatures)
+  // console.log('Feats: ', feats)
 
   return {
     level: levels.length,
@@ -281,5 +321,6 @@ export const parseCharacter = (
     equipment,
     magic,
     stats,
+    actions,
   }
 }

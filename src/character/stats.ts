@@ -1,10 +1,12 @@
 import { Character } from '../types/character'
 import { StatRule } from '../types/dnd'
 
+type MinimalCharacter = Pick<Character, 'level' | 'equipment' | 'stats'>
+
 const abilityScoreMod = (abilityScore: number) =>
   Math.floor((abilityScore - 10) / 2)
 
-const hasArmorEquipped = (character: Character, equipString: string) => {
+const hasArmorEquipped = (character: MinimalCharacter, equipString: string) => {
   const pair = equipString.replace('[', '').replace(']', '').split(':')
   const item = character.equipment[pair[0]]
   if (pair[1] === 'any') return !!item
@@ -18,7 +20,7 @@ const hasArmorEquipped = (character: Character, equipString: string) => {
   )
 }
 
-const meetsRequirements = (character: Character, stat: StatRule) => {
+const meetsRequirements = (character: MinimalCharacter, stat: StatRule) => {
   let hasLevels = false
   let hasEquipped = false
   if (!stat.$.level) hasLevels = true
@@ -30,7 +32,10 @@ const meetsRequirements = (character: Character, stat: StatRule) => {
   return hasLevels && hasEquipped
 }
 
-const calculateStat = (character: Character, name: string): null | number => {
+const calculateStat = (
+  character: MinimalCharacter,
+  name: string,
+): null | number => {
   const stat = character.stats[name]
   if (name.endsWith(':modifier')) {
     const abilityScore = name.split(':')[0]
@@ -49,4 +54,18 @@ const calculateStat = (character: Character, name: string): null | number => {
   }, 0)
 }
 
-export { calculateStat as stat }
+const replaceStats = (character: MinimalCharacter, toReplace: string = '') => {
+  const matches = Array.from(toReplace.matchAll(/\{\{([\w \-:]+)\}\}/g)).filter(
+    match => match[1],
+  )
+
+  const replaced = matches.reduce(
+    (string, match) =>
+      string.replace(match[0], `${calculateStat(character, match[1])}`),
+    toReplace,
+  )
+
+  return replaced
+}
+
+export { calculateStat as stat, replaceStats }

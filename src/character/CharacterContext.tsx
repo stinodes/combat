@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { useLoading } from '../common/useLoading'
 import { Character, CharacterPreview } from '../types/character'
+import { ResourceType } from '../types/dnd'
 import { stat } from './stats'
 
 export type ExtendedCharacter = Character & {
@@ -62,6 +63,18 @@ export const CharacterProvider = ({
     fetchCharacter(id)
   }, [id, fetchCharacter])
 
+  // const query = useCallback(async (id: string) => {
+  //   const r = await window.api.raw(id)
+  //   const ids = r.build[0].sum[0].element.map(s => s.$.id)
+  //   const elements = (await Promise.all(
+  //     ids.map(window.api.resourceForId),
+  //   )) as any[]
+  // }, [])
+  //
+  // useEffect(() => {
+  //   query(id)
+  // }, [query, id])
+
   return (
     <CharacterContext.Provider value={value}>
       {children}
@@ -81,3 +94,4 @@ export const useStat = (name: string) => {
   return stat(char, name)
 }
 export const useMagic = () => useCharacterContext().character?.magic
+export const useActions = () => useCharacterContext().character?.actions

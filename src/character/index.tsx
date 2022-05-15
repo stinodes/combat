@@ -1,9 +1,11 @@
 import { useParams } from 'react-router-dom'
-import { Flex, Layout, Spinner } from 'stinodes-ui'
+import { Accordeon, Flex, H4, Layout, Spinner } from 'stinodes-ui'
+import { Actions } from '../combat/Actions'
 import { CombatProvider } from '../combat/CombatContext'
 import { Controls } from '../combat/Controls'
 import { Log } from '../combat/Log'
 import { UnitFrame } from '../combat/UnitFrame'
+import { Tabs } from '../common/Tabs'
 import { CharacterProvider, useCharacterLoading } from './CharacterContext'
 
 export const Character = () => {
@@ -14,19 +16,44 @@ export const Character = () => {
       <CombatProvider>
         <Flex flex={1} flexDirection="column">
           <UnitFrame />
+          <Flex justifyContent="flex-end" pr={3} mt={-5}>
+            <Controls />
+          </Flex>
           {isLoading ? (
             <Flex alignItems="center" justifyContent="center">
               <Spinner size={64} />
             </Flex>
           ) : (
-            <Layout spacing={3} px={2} direction="row" pt={5}>
-              <Flex flexDirection="column" pl={162}>
-                <Controls />
-              </Flex>
-              <Flex flexDirection="column">
-                <Log width={400} />
-              </Flex>
-            </Layout>
+            <Flex flexDirection="column" spacing={3} px={2} direction="row">
+              <Tabs>
+                <Tabs.Tab title="Overview" hash="overview">
+                  <Flex justifyContent="center" flex={1}>
+                    <Layout
+                      spacing={3}
+                      pt={4}
+                      direction="column"
+                      flex={1}
+                      maxWidth={1400}
+                    >
+                      <Accordeon
+                        visible={true}
+                        onChange={() => {}}
+                        header={
+                          <Flex justifyContent="center" py={2}>
+                            <H4>Features & Traits</H4>
+                          </Flex>
+                        }
+                      >
+                        <Actions />
+                      </Accordeon>
+                    </Layout>
+                  </Flex>
+                </Tabs.Tab>
+                <Tabs.Tab title="Combat Log" hash="log">
+                  <Log />
+                </Tabs.Tab>
+              </Tabs>
+            </Flex>
           )}
         </Flex>
       </CombatProvider>

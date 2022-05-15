@@ -58,8 +58,8 @@ type ResourceMeta = {
   id: ID
 }
 
-type HTMLString = string
-type ResourceDescription = HTMLString
+export type HTMLString = string
+export type ResourceDescription = HTMLString
 
 export type ResourceRule = {
   grant?: GrantRule[]
@@ -91,6 +91,11 @@ export type SelectRule = {
   }
 }
 
+export type Sheet = {
+  $: { action: string; usage: string }
+  description: ({ $: { level: string }; _: string } | string)[]
+}
+
 export type ResourceSetter = {
   $: { name: string }
   _: string
@@ -102,7 +107,8 @@ export type Resource = ResourceMeta & {
   rules?: ResourceRule[]
   supports?: ID[]
   setters?: [{ set: ResourceSetter[] }]
-  spellcasting: [Resource]
+  sheet?: [Sheet]
+  spellcasting?: [Resource]
 }
 export type ResourceDB = {
   resources: { [id: ID]: Resource }

@@ -1,15 +1,8 @@
-import styled from '@emotion/styled'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, H4, Modal, Text } from 'stinodes-ui'
+import { Description } from '../common/Description'
 import { useLoading } from '../common/useLoading'
 import { ID, Resource } from '../types/dnd'
-
-const Description = styled(Box)`
-  .feature {
-    margin-right: 8px;
-    font-weight: bold;
-  }
-`
 
 type ResourceModalProps = {
   id: null | ID
@@ -60,16 +53,7 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
       </Text>
       {resource.description && (
         <Box pb={2}>
-          <Description
-            dangerouslySetInnerHTML={{
-              __html: resource.description
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .replace(/&#039;/g, "'"),
-            }}
-          />
+          <Description text={resource.description} />
         </Box>
       )}
       {additionalResources?.map(
@@ -77,16 +61,7 @@ export const ResourceModal = ({ id, onClose }: ResourceModalProps) => {
           resource?.description && (
             <Box>
               <H4 fontSize={20}>{resource.$.name}</H4>
-              <Description
-                dangerouslySetInnerHTML={{
-                  __html: resource.description
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/&quot;/g, '"')
-                    .replace(/&#039;/g, "'"),
-                }}
-              />
+              <Description text={resource.description} />
             </Box>
           ),
       )}
