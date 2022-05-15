@@ -44,14 +44,16 @@ const BarText = styled(Flex)`
 `
 
 type BarProps = {
-  total: number
+  max: number
   current: number
+  extra: number
   color: string
   showWarnings?: boolean
 }
 export const Bar = ({
-  total,
+  max,
   current,
+  extra,
   color: baseColor,
   showWarnings,
 }: BarProps) => {
@@ -61,10 +63,10 @@ export const Bar = ({
   const color = useMemo(() => {
     if (!showWarnings) return baseColor
 
-    if (current < total * 0.25) return 'reds.3'
-    if (current < total * 0.5) return 'yellows.3'
+    if (current < max * 0.25) return 'reds.3'
+    if (current < max * 0.5) return 'yellows.3'
     return baseColor
-  }, [baseColor, showWarnings, current, total])
+  }, [baseColor, showWarnings, current, max])
 
   useEffect(() => {
     if (current < currentRef.current) setStatus('damaged')
@@ -81,11 +83,13 @@ export const Bar = ({
         healed={status === 'healed'}
         onAnimationEnd={() => setStatus(null)}
       >
-        <BarFill width={current / total} bg={color} />
+        <BarFill width={current / max} bg={color} />
+        <BarFill width={extra / max} bg="typography.0" />
         <BarText pl={2}>
           <Text>
-            {current} / {total}
+            {current} / {max}
           </Text>
+          {!!extra && <Text ml={1}> + {extra}</Text>}
         </BarText>
       </BarBackground>
     </Flex>

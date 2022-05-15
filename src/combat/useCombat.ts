@@ -15,6 +15,7 @@ import { ID } from '../types/dnd'
 const initialState: CombatState = {
   hp: 0,
   maxHp: 0,
+  shield: 0,
   spellcasting: null,
   features: {},
   log: [],
@@ -78,18 +79,25 @@ const { reducer: combatReducer, actions } = createSlice({
     },
 
     heal: undoableAction((state, action) => {
-      if (action.meta.undo) {
-        state.hp = Math.max(state.hp - action.payload, 0)
-      } else {
+      if (!action.meta.undo)
         state.hp = Math.min(state.hp + action.payload, state.maxHp)
-      }
+    }),
+
+    shield: undoableAction((state, action) => {
+      if (!action.meta.undo) state.shield = action.payload
     }),
 
     damage: undoableAction((state, action) => {
-      if (action.meta.undo) {
-        state.hp = Math.min(state.hp + action.payload, state.maxHp)
-      } else {
-        state.hp = Math.max(state.hp - action.payload, 0)
+      if (!action.meta.undo) {
+        let dmg = action.payload
+        const shield = state.shield
+
+        if (shield !== 0) {
+          state.shield = Math.max(shield - dmg, 0)
+          dmg = Math.max(dmg - shield, 0)
+        }
+
+        state.hp = Math.max(state.hp - dmg, 0)
       }
     }),
 
@@ -173,6 +181,13 @@ export const useCombatInternal = (
     [dispatch],
   )
 
+  const shield = useCallback(
+    (amount: number) => {
+      dispatch(actions.shield(amount))
+    },
+    [dispatch],
+  )
+
   const consumeSpellslot = useCallback(
     (className: string, slot: SpellSlotName) => {
       dispatch(actions.consumeSpellslot({ class: className, slot }))
@@ -217,6 +232,7 @@ export const useCombatInternal = (
     () => ({
       heal,
       damage,
+      shield,
       undo,
       consumeSpellslot,
       restoreSpellslot,
@@ -226,6 +242,7 @@ export const useCombatInternal = (
     [
       heal,
       damage,
+      shield,
       undo,
       consumeSpellslot,
       restoreSpellslot,

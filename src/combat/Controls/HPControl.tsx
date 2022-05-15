@@ -25,22 +25,30 @@ export const HPControl = () => {
     setValue('')
   }, [setValue, api, value, hp, maxHp])
 
+  const onShield = useCallback(() => {
+    const number = Number(value)
+    api.shield(number)
+    setValue('')
+  }, [setValue, api, value, hp, maxHp])
+
   const onChange = useCallback(
     (e: SyntheticEvent<HTMLInputElement, InputEvent>) => {
       const string = e.currentTarget.value
 
       if (e.nativeEvent.data === '-') return onDamage()
       if (e.nativeEvent.data === '+') return onHeal()
+      if (e.nativeEvent.data === 's') return onShield()
+      if (e.nativeEvent.data === 't') return onShield()
 
       if (!/(^\d*$)/.test(string)) return
       setValue(string)
     },
-    [setValue, onDamage, onHeal],
+    [setValue, onDamage, onHeal, onShield],
   )
 
   return (
-    <Flex flexDirection="column">
-      <TextField type="numeric" value={value} onChange={onChange} width={104} />
+    <Flex flexDirection="column" flex={0}>
+      <TextField type="numeric" value={value} onChange={onChange} width={150} />
       <Flex>
         <Flex flex={1} flexDirection="column">
           <Button
@@ -62,6 +70,17 @@ export const HPControl = () => {
             title="Shortcut: +"
           >
             <Icon icon="plus" />
+          </Button>
+        </Flex>
+        <Flex flex={1} flexDirection="column">
+          <Button
+            onClick={onShield}
+            bg="surfaces.4"
+            color="typography.2"
+            size="small"
+            title="Shortcut: s, t"
+          >
+            <Icon icon="circle" />
           </Button>
         </Flex>
       </Flex>
