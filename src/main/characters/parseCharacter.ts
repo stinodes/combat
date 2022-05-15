@@ -195,6 +195,7 @@ const getStats = (character: null | AuroraCharacter): Stats => {
 
       element.rules[0].stat.forEach(stat => {
         const name = stat.$.name.toLowerCase()
+        console.log(name, stat)
         if (!prev[name]) prev[name] = []
         prev[name] = [...prev[name], stat]
       })

@@ -1,11 +1,15 @@
 import fs from 'fs'
 import { parseStringPromise } from 'xml2js'
 import { Resource, ResourceDB } from '../../types/dnd'
+import INTERNAL from './internal_elements.xml'
 
 export const parseResources = async (path: string) => {
   const fileNames = await recursivelyLoadFileNames(path)
 
-  const parsedFiles = await Promise.all(fileNames.map(readFile))
+  const readFiles = await Promise.all(fileNames.map(readFile))
+  const parsedFiles = await Promise.all(
+    readFiles.concat(INTERNAL).map(parseFile),
+  )
 
   return indexResources(parsedFiles)
 }
@@ -31,7 +35,10 @@ const readFile = async (path: string) => {
   const content = (await fs.promises.readFile(path, {
     encoding: 'utf8',
   })) as string
+  return content
+}
 
+const parseFile = async (content: string) => {
   const doc = (await parseStringPromise(content)) as {
     elements: { element: Resource[] }
   }
