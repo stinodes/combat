@@ -20,7 +20,7 @@ jobs:
           node-version: 16
 
       - name: Build/release Electron app
-        uses: kindlyops/action-electron-forge@v1
+        uses: kindlyops/action-electron-forge@v2
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
