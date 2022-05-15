@@ -21,14 +21,16 @@ export type CombatSpellcasting = Omit<SpellCasting, 'slots'> & {
 export type CombatState = {
   maxHp: number
   hp: number
+  shield: number
   spellcasting: null | { [className: string]: CombatSpellcasting }
   features: { [id: ID]: CombatResource }
   log: CombatLog[]
 }
 export type CombatAPI = {
-  heal: (amount: number) => any
-  damage: (amount: number) => any
-  undo: (log: CombatLog) => any
+  heal: (amount: number) => void
+  shield: (amount: number) => void
+  damage: (amount: number) => void
+  undo: (log: CombatLog) => void
   consumeSpellslot: (className: string, slot: SpellSlotName) => void
   restoreSpellslot: (className: string, slot: SpellSlotName) => void
   consumeFeature: (id: ID) => void

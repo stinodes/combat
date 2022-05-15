@@ -12,7 +12,7 @@ import { SpellSlots } from './SpellSlots'
 export const UnitFrame = () => {
   const isLoading = useCharacterLoading()
   const preview = usePreview()
-  const { hp, maxHp } = useCombatState()
+  const { hp, maxHp, shield } = useCombatState()
 
   if (!preview || isLoading)
     return (
@@ -38,7 +38,13 @@ export const UnitFrame = () => {
           </H1>
           <H3 color="surfaces.0">{preview.class}</H3>
         </Layout>
-        <Bar color="greens.3" total={maxHp} current={hp} showWarnings />
+        <Bar
+          color="greens.3"
+          max={maxHp}
+          current={hp}
+          extra={shield}
+          showWarnings
+        />
         <SpellSlots />
 
         <Flex mb={-5}>
