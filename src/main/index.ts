@@ -35,10 +35,9 @@ const createWindow = (): void => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
-
   if (isDev) {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools()
     installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS]).catch(err =>
       console.log('An error occurred: ', err),
     )
