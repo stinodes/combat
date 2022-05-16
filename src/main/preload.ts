@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { Settings } from '../types/settings'
 
 contextBridge.exposeInMainWorld('api', {
   openDir: () => ipcRenderer.invoke('dialog:openDir'),
@@ -19,4 +20,9 @@ contextBridge.exposeInMainWorld('api', {
   loadCharacter: (id: string) => ipcRenderer.invoke('character:load', id),
   raw: (id: string) => ipcRenderer.invoke('character:raw', id),
   character: (id: string) => ipcRenderer.invoke('character:character', id),
+
+  settings: () => ipcRenderer.invoke('settings:settings'),
+  setting: (key: string) => ipcRenderer.invoke('settings:setting', key),
+  saveSettings: (settings: Settings) =>
+    ipcRenderer.invoke('settings:save', settings),
 })

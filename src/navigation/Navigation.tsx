@@ -40,8 +40,13 @@ const SideMenu = styled(Flex)<{ show: boolean; fixed: boolean }>`
 const Content = styled(Flex)`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${themeColor('surface.3')};
-  border-left: 2px solid ${themeColor('surface.3')};
+
+  border-top: 2px solid ${themeColor('surfaces.2')};
+  bborder-left: unset;
+  @media screen and (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    border-top: unset;
+    border-left: 2px solid ${themeColor('surfaces.2')};
+  }
 `
 
 const Underlay = styled(Flex)`
