@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import { Resource, ResourceDB, ResourceType } from '../../types/dnd'
+import { settingsApi } from '../settings'
 import { parseResources } from './parse'
 
 export const resources = (() => {
@@ -14,7 +15,9 @@ export const resources = (() => {
   }
 
   return {
-    async load(newPath: string) {
+    async load(newPath: void | string = settingsApi.setting<string>('path')) {
+      if (!newPath) return Promise.reject()
+
       path = newPath
       data = await parseResources(path)
       loaded = true

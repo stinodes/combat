@@ -14,6 +14,10 @@ export interface API {
   raw: (id: string) => Promise<null | AuroraCharacter>
   loadCharacter: (id: string) => Promise<null | Character>
   character: (id: string) => Promise<null | Character>
+
+  settings: () => Promise<Settings>
+  setting: (key: string) => Promise<void | string>
+  saveSettings: (settings: Settings) => Promise<void>
 }
 
 declare global {
@@ -26,3 +30,4 @@ import './main'
 import { AuroraCharacter } from './types/aurora'
 import { Character, CharacterPreview } from './types/character'
 import { Resource, ResourceType } from './types/dnd'
+import { Settings } from './types/settings'

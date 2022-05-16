@@ -40,7 +40,7 @@ export const Resources = () => {
           <TextField
             disabled={loading}
             label="Resource Folder"
-            onFocus={selectPath}
+            onClick={selectPath}
             value={path}
             onChange={() => {}}
           />

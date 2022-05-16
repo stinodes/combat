@@ -7,6 +7,7 @@ import { NavMenuLink } from './navigation/Link'
 import { Navigation } from './navigation/Navigation'
 import { Overview } from './overview'
 import { Resources, RESOURCE_KEY } from './resources'
+import { Settings } from './settings'
 
 function App() {
   const [loading, fetch] = useLoading(window.api.load)
@@ -20,6 +21,8 @@ function App() {
         <>
           <NavMenuLink icon="user" to="/characters" />
           <NavMenuLink icon="box" to="/resources" />
+          <Flex flex={1} />
+          <NavMenuLink icon="settings" to="/settings" />
         </>
       }
     >
@@ -33,6 +36,7 @@ function App() {
             <Route path="resources" element={<Resources />} />
             <Route path="characters/:characterId" element={<Character />} />
             <Route path="characters" element={<Overview />} />
+            <Route path="settings" element={<Settings />} />
           </Routes>
         )}
       </>

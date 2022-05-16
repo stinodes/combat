@@ -6,13 +6,15 @@ import { FlexButton, Icon, themeColor } from 'stinodes-ui'
 export const StyledNavMenuLink = styled(FlexButton.withComponent(Link))`
   text-decoration: none;
   font-weight: bold;
+  justify-content: center;
+  align-items: center;
   &.active {
     color: ${themeColor('primary')};
   }
 `
 StyledNavMenuLink.defaultProps = {
   bg: 'surfaces.4',
-  color: 'text',
+  color: 'typography.4',
   p: 2,
 }
 
@@ -24,7 +26,7 @@ export const NavMenuLink = (
 
   return (
     <StyledNavMenuLink {...props} className={match ? 'active' : ''}>
-      <Icon icon={props.icon} fontSize={32} />
+      <Icon icon={props.icon} fontSize={28} />
     </StyledNavMenuLink>
   )
 }
