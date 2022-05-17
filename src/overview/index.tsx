@@ -41,7 +41,7 @@ export const Overview = () => {
           </Col>
         )}
         {characters.map(char => (
-          <Col width={1 / 4} key={char.id}>
+          <Col width={1 / 4} key={char.id} mb={3}>
             <Link to={`${char.id}`} style={{ textDecoration: 'none' }}>
               <CharacterCard character={char} />
             </Link>
