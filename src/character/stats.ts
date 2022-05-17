@@ -30,7 +30,9 @@ const meetsRequirements = (character: MinimalCharacter, stat: StatRule) => {
   if (!stat.$.equipped) hasEquipped = true
   if (Number(stat.$.level) <= character.level) hasLevels = true
   if (stat.$.equipped) {
-    hasEquipped = hasArmorEquipped(character, stat.$.equipped)
+    hasEquipped = stat.$.equipped
+      .split(',')
+      .every(condition => hasArmorEquipped(character, condition))
   }
   return hasLevels && hasEquipped
 }
@@ -60,11 +62,13 @@ const calculateStat = (
   return stat.reduce((total, rule) => {
     if (!meetsRequirements(character, rule)) return total
 
-    if (!isNaN(Number(rule.$.value))) return total + Number(rule.$.value)
+    let value
+    if (!isNaN(Number(rule.$.value))) value = Number(rule.$.value)
+    else value = calculateStat(character, rule.$.value)
 
-    const recursiveValue = calculateStat(character, rule.$.value)
-    if (recursiveValue === null) return total
-    return total + recursiveValue
+    if (value === null) return total
+    if (rule.$.bonus && value > total) return value
+    return total + value
   }, 0)
 }
 
