@@ -235,7 +235,6 @@ export const useCombatInternal = (
 
   useEffect(() => {
     if (!character) return
-    console.log(character)
     dispatch(actions.initialize(character) as CombatLog)
   }, [character, dispatch])
 
