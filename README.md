@@ -12,9 +12,8 @@ stats and options easier (on the eyes).
 Personally, I build my characters using **[Aurora Builder](https://aurorabuilder.com/)**, so naturally the goal is to make use of its resources and character savefiles.
 
 ## Installation
-There are no distribution packages **yet**. Pipelines to provide these will be added soon(tm).  
-Building for all (non-mobile) platforms should be no issue, so expect that.  
-For now, you can build from source, if you are a brave warrior.
+Head over to the [releases](https://github.com/stinodes/combat/releases) page, and download the latest installer for your preferred platform.  
+Once in the app, head over to resources or settings, depending on your version, and select your directory containing the Aurora resource-files.
 
 ## Technical
 The app is made using the following technologies:
