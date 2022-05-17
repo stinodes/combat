@@ -1,7 +1,10 @@
 import { Character } from '../types/character'
 import { StatRule } from '../types/dnd'
 
-type MinimalCharacter = Pick<Character, 'level' | 'equipment' | 'stats'>
+type MinimalCharacter = Pick<
+  Character,
+  'level' | 'classes' | 'equipment' | 'stats'
+>
 
 const abilityScoreMod = (abilityScore: number) =>
   Math.floor((abilityScore - 10) / 2)
@@ -37,12 +40,23 @@ const calculateStat = (
   name: string,
 ): null | number => {
   const stat = character.stats[name]
+
   if (name.endsWith(':modifier')) {
     const abilityScore = name.split(':')[0]
     const value = calculateStat(character, abilityScore) || 10
     return abilityScoreMod(value)
   }
-  if (!stat) return null
+
+  if (name.startsWith('level:')) {
+    const className = name.split(':')[1]
+    return (
+      character.classes.find(c => c.class.toLowerCase() === className)?.level ||
+      0
+    )
+  }
+
+  if (!stat) return 0
+
   return stat.reduce((total, rule) => {
     if (!meetsRequirements(character, rule)) return total
 

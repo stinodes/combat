@@ -253,6 +253,7 @@ const getMagic = (character: null | AuroraCharacter): Magic => {
 const getActions = (character: AuroraCharacter) => {
   const minimalCharacter = {
     level: getLevels(character).length,
+    classes: getClasses(character),
     equipment: getEquipment(character),
     stats: getStats(character),
   }

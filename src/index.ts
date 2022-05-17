@@ -16,7 +16,9 @@ export interface API {
   character: (id: string) => Promise<null | Character>
 
   settings: () => Promise<Settings>
-  setting: (key: string) => Promise<void | string>
+  setting: <R extends Settings[keyof Settings]>(
+    key: keyof Settings,
+  ) => Promise<R>
   saveSettings: (settings: Settings) => Promise<void>
 }
 

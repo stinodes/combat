@@ -1,7 +1,8 @@
 import styled from '@emotion/styled'
 import { Button, Flex, Layout, Text, themeColor } from 'stinodes-ui'
+import { useAdditionalResources } from '../../character/CharacterContext'
 import { SpellSlotName } from '../../types/aurora'
-import { useCombatApi, useSpellcasting } from '../CombatContext'
+import { useCombatApi, useFeatures, useSpellcasting } from '../CombatContext'
 
 const Label = styled(Text)`
   font-weight: bold;
@@ -27,9 +28,11 @@ const SpellSlot = styled(Button)<{ empty?: boolean }>`
 
 export const SpellSlots = () => {
   const spellcasting = useSpellcasting()
+  const features = useFeatures()
+  const additionalResources = useAdditionalResources()
   const api = useCombatApi()
 
-  if (!spellcasting) return null
+  if (!spellcasting && !additionalResources.length) return null
 
   let renderedMulticlass = false
 
@@ -40,51 +43,84 @@ export const SpellSlots = () => {
     api.restoreSpellslot(className, level)
   }
 
+  const onFeatureUse = (stat: string) => {
+    api.consumeFeature(stat)
+  }
+  const onFeatureRestore = (stat: string) => {
+    api.restoreFeature(stat)
+  }
+
   return (
     <Layout spacing={2} direction="row">
-      {Object.keys(spellcasting).map(className => {
-        const sc = spellcasting[className]
-        if (sc.multiclass && renderedMulticlass) return null
-        if (sc.multiclass && !renderedMulticlass) renderedMulticlass = true
-        return (
-          <Layout direction="row" alignItems="center" key={sc.class}>
-            <Label>{sc.multiclass ? 'Multiclass' : sc.class}</Label>
-            <Layout direction="row" spacing={3}>
-              {Object.keys(sc.slots).map(key => {
-                if (!sc.slots[key as SpellSlotName].max) return null
-                return (
-                  <Flex key={key}>
-                    {new Array(sc.slots[key as SpellSlotName].max)
-                      .fill(null)
-                      .map((_, i, arr) => {
-                        return (
-                          <SpellSlot
-                            key={i}
-                            title="Right-click to restore"
-                            bg={
-                              arr.length - i >
-                              sc.slots[key as SpellSlotName].current
-                                ? 'surfaces.2'
-                                : 'blues.2'
-                            }
-                            onContextMenu={() =>
-                              onSpellSlotRestore(
-                                className,
-                                key as SpellSlotName,
-                              )
-                            }
-                            onClick={() =>
-                              onSpellSlotUse(className, key as SpellSlotName)
-                            }
-                          >
-                            {i === arr.length - 1 ? key.replace('s', '') : ''}
-                          </SpellSlot>
-                        )
-                      })}
-                  </Flex>
-                )
-              })}
+      {spellcasting &&
+        Object.keys(spellcasting).map(className => {
+          const sc = spellcasting[className]
+          if (sc.multiclass && renderedMulticlass) return null
+          if (sc.multiclass && !renderedMulticlass) renderedMulticlass = true
+          return (
+            <Layout direction="row" alignItems="center" key={sc.class}>
+              <Label>{sc.multiclass ? 'Multiclass' : sc.class}</Label>
+              <Layout direction="row" spacing={3}>
+                {Object.keys(sc.slots).map(key => {
+                  if (!sc.slots[key as SpellSlotName].max) return null
+                  return (
+                    <Flex key={key}>
+                      {new Array(sc.slots[key as SpellSlotName].max)
+                        .fill(null)
+                        .map((_, i, arr) => {
+                          return (
+                            <SpellSlot
+                              key={i}
+                              title="Right-click to restore"
+                              bg={
+                                arr.length - i >
+                                sc.slots[key as SpellSlotName].current
+                                  ? 'surfaces.2'
+                                  : 'blues.2'
+                              }
+                              onContextMenu={() =>
+                                onSpellSlotRestore(
+                                  className,
+                                  key as SpellSlotName,
+                                )
+                              }
+                              onClick={() =>
+                                onSpellSlotUse(className, key as SpellSlotName)
+                              }
+                            >
+                              {i === arr.length - 1 ? key.replace('s', '') : ''}
+                            </SpellSlot>
+                          )
+                        })}
+                    </Flex>
+                  )
+                })}
+              </Layout>
             </Layout>
+          )
+        })}
+
+      {additionalResources.map(resource => {
+        const usage = features[resource.name]
+        if (!usage || !usage.max) return null
+        return (
+          <Layout direction="row" alignItems="center" key={resource.name}>
+            <Label>{resource.label}</Label>
+            {new Array(usage.max).fill(null).map((_, i, arr) => {
+              return (
+                <SpellSlot
+                  key={i}
+                  title="Right-click to restore"
+                  bg={
+                    arr.length - i > usage.current
+                      ? 'surfaces.2'
+                      : resource.color
+                  }
+                  onContextMenu={() => onFeatureRestore(resource.name)}
+                  onClick={() => onFeatureUse(resource.name)}
+                />
+              )
+            })}
           </Layout>
         )
       })}

@@ -11,6 +11,7 @@ import { v4 } from 'uuid'
 import { ExtendedCharacter } from '../character/CharacterContext'
 import { SpellSlotName } from '../types/aurora'
 import { ID } from '../types/dnd'
+import { stat } from '../character/stats'
 
 const initialState: CombatState = {
   hp: 0,
@@ -75,6 +76,15 @@ const { reducer: combatReducer, actions } = createSlice({
           prev[action.id] = { current: action.usage, max: action.usage }
         return prev
       }, {} as { [id: ID]: CombatResource })
+
+      action.payload.additionalResources.forEach(resource => {
+        const total = stat(action.payload, resource.name)
+        actionUsage[resource.name] = {
+          max: total,
+          current: total,
+        }
+      })
+
       state.features = actionUsage
     },
 
@@ -225,6 +235,7 @@ export const useCombatInternal = (
 
   useEffect(() => {
     if (!character) return
+    console.log(character)
     dispatch(actions.initialize(character) as CombatLog)
   }, [character, dispatch])
 
