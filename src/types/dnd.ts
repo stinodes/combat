@@ -79,6 +79,8 @@ export type StatRule = {
     value: string
     level?: string
     equipped?: string
+    bonus?: string
+    merge?: string
   }
 }
 export type SelectRule = {

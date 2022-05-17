@@ -23,7 +23,8 @@
             <!--<stat name="AC" value="10" bonus="base" />-->
             <stat name="attunement:max" value="3" bonus="base" />
             <!--<stat name="ac" value="ac:calculation" bonus="calculation" />-->
-            <!--<stat name="ac" value="ac:shield" bonus="shield" alt="Shield" />-->
+            <stat name="ac:armored" value="ac:shield" alt="Shield" />
+            <stat name="ac:unarmored" value="ac:shield" alt="Shield" />
             <!--<stat name="ac" value="ac:misc" />-->
             <!--<stat name="ac:calculation" value="0" />-->
             <!--<stat name="ac:shield" value="0" />-->
