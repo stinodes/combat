@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('api', {
   resourceForId: (id: string) =>
     ipcRenderer.invoke('resources:resourceForId', id),
   resourcesForIds: (ids: string[]) =>
-    ipcRenderer.invoke('resources:resourceForId', ids),
+    ipcRenderer.invoke('resources:resourcesForIds', ids),
   resourceTypes: () => ipcRenderer.invoke('resources:resourceTypes'),
   resourcesForType: (type: string) =>
     ipcRenderer.invoke('resources:resourcesForType', type),

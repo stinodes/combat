@@ -61,13 +61,35 @@ const { reducer: combatReducer, actions } = createSlice({
             slots: Object.keys(s.slots).reduce((prev, key) => {
               const castedKey = key as SpellSlotName
               prev[castedKey] = {
-                max: s.slots[castedKey],
-                current: s.slots[castedKey],
+                max: s.multiclass ? 0 : s.slots[castedKey],
+                current: s.multiclass ? 0 : s.slots[castedKey],
               }
               return prev
             }, {} as { [slot in SpellSlotName]: CombatResource }),
           }
         })
+
+        if (magic.multiclass) {
+          const exampleClass = magic.spellcasting.find(sc => sc.multiclass)
+          spellcasting.multiclass = {
+            multiclass: false,
+            class: 'multiclass',
+            ability: exampleClass.ability,
+            dc: 0,
+            attack: 0,
+            prepare: false,
+            spells: [],
+            slots: Object.keys(exampleClass.slots).reduce((prev, key) => {
+              const castedKey = key as SpellSlotName
+              prev[castedKey] = {
+                max: exampleClass.slots[castedKey],
+                current: exampleClass.slots[castedKey],
+              }
+              return prev
+            }, {} as { [slot in SpellSlotName]: CombatResource }),
+          }
+        }
+
         state.spellcasting = spellcasting
       } else state.spellcasting = null
 

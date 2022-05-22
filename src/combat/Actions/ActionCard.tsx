@@ -19,18 +19,16 @@ export const ActionCard = ({ action }: Props) => {
         </Card>
       }
     >
-      <Card p={3} pb={1} bg="surfaces.2" border="surfaces.1" shadow flex={1}>
+      <Card p={2} bg="surfaces.2" border="surfaces.1" shadow flex={1}>
         <Layout flex={1} spacing={1}>
           <H4 textAlign="center">{action.name}</H4>
+          {(!!action.usage || !!action.reset) && (
+            <Flex height={1} bg="surfaces.1" mx={-2} />
+          )}
           {!!action.action && (
-            <Text textAlign="center" fontSize={14}>
+            <Text textAlign="center" fontSize={12}>
               {action.action}
             </Text>
-          )}
-          {!!action.usage || !!action.reset ? (
-            <Flex height={1} bg="surfaces.1" style={{ opacity: 0.3 }} mx={-3} />
-          ) : (
-            <Flex pb={2} />
           )}
           {!!action.usage && (
             <Flex justifyContent="center">

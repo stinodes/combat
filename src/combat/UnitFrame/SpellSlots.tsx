@@ -34,8 +34,6 @@ export const SpellSlots = () => {
 
   if (!spellcasting && !additionalResources.length) return null
 
-  let renderedMulticlass = false
-
   const onSpellSlotUse = (className: string, level: SpellSlotName) => {
     api.consumeSpellslot(className, level)
   }
@@ -55,8 +53,7 @@ export const SpellSlots = () => {
       {spellcasting &&
         Object.keys(spellcasting).map(className => {
           const sc = spellcasting[className]
-          if (sc.multiclass && renderedMulticlass) return null
-          if (sc.multiclass && !renderedMulticlass) renderedMulticlass = true
+          if (sc.multiclass) return null
           return (
             <Layout direction="row" alignItems="center" key={sc.class}>
               <Label>{sc.multiclass ? 'Multiclass' : sc.class}</Label>

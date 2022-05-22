@@ -25,6 +25,7 @@ export const Tabs = ({ children }: TabsProps) => {
       <Layout direction="row" justifyContent="center">
         {tabs.map(tab => (
           <FlexButton
+            key={tab.props.hash}
             p={2}
             bg="surfaces.4"
             onClick={() => setActiveTab(tab.props.hash)}

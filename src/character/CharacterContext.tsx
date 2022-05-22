@@ -72,19 +72,13 @@ export const CharacterProvider = ({
   }, [id, fetchCharacter])
 
   // const query = useCallback(async (id: string) => {
-  //   const r = await window.api.raw(id)
-  //   const ids = r.build[0].sum[0].element.map(s => s.$.id)
-  //   const elements = await Promise.all(ids.map(window.api.resourceForId))
-  //   console.log(
-  //     elements.filter(
-  //       el => el && el.rules && el.rules[0]?.stat?.some(e => e.$.name === 'hp'),
-  //     ),
-  //   )
+  //   // const r = await window.api.raw(id)
   // }, [])
   //
   // useEffect(() => {
   //   query(id)
   // }, [query, id])
+  //
 
   return (
     <CharacterContext.Provider value={value}>

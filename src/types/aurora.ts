@@ -1,4 +1,4 @@
-import { ID } from './dnd'
+import { ID, Resource } from './dnd'
 
 type Ability =
   | 'Strength'
@@ -44,6 +44,7 @@ export type SpellSlotLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 export type SpellSlotName = `s${SpellSlotLevel}`
 export type AuroraSpellCasting = {
   $: {
+    id: ID
     name: string
     ability: Ability
     attack: string
@@ -55,6 +56,11 @@ export type AuroraSpellCasting = {
       $: {
         [slot in SpellSlotName]: string
       }
+    },
+  ]
+  spells: [
+    {
+      spell: Element<{ level: string; prepared: string }>[]
     },
   ]
 }
