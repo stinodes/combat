@@ -6,6 +6,7 @@ import { Controls } from '../combat/Controls'
 import { Log } from '../combat/Log'
 import { Spells } from '../combat/Spells'
 import { UnitFrame } from '../combat/UnitFrame'
+import { FadeContainer } from '../common/FadeContainer'
 import { Tabs } from '../common/Tabs'
 import { CharacterProvider, useCharacterLoading } from './CharacterContext'
 
@@ -15,17 +16,19 @@ export const Character = () => {
   return (
     <CharacterProvider id={urlParams.characterId as string}>
       <CombatProvider>
-        <Flex flex={1} flexDirection="column">
-          <UnitFrame />
-          <Flex justifyContent="flex-end" pr={3} mt={-5}>
-            <Controls />
-          </Flex>
-          {isLoading ? (
-            <Flex alignItems="center" justifyContent="center">
-              <Spinner size={64} />
+        {!isLoading && (
+          <FadeContainer delay={0.5} flex={1} flexDirection="column">
+            <UnitFrame />
+            <Flex justifyContent="flex-end" pr={3} mt={-5}>
+              <Controls />
             </Flex>
-          ) : (
-            <Flex flexDirection="column" spacing={3} px={2} direction="row">
+            <FadeContainer
+              delay={1}
+              flexDirection="column"
+              spacing={3}
+              px={2}
+              direction="row"
+            >
               <Tabs>
                 <Tabs.Tab title="Overview" hash="overview">
                   <Flex justifyContent="center" flex={1}>
@@ -61,9 +64,9 @@ export const Character = () => {
                   <Log />
                 </Tabs.Tab>
               </Tabs>
-            </Flex>
-          )}
-        </Flex>
+            </FadeContainer>
+          </FadeContainer>
+        )}
       </CombatProvider>
     </CharacterProvider>
   )

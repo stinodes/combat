@@ -5,9 +5,9 @@ import {
   usePreview,
 } from '../../character/CharacterContext'
 import { Bar } from './Bar'
-import { Portrait } from './Portrait'
 import { GlanceStats } from './GlanceStats'
 import { SpellSlots } from './SpellSlots'
+import { Portrait } from '../../common/Portrait'
 
 export const UnitFrame = () => {
   const isLoading = useCharacterLoading()

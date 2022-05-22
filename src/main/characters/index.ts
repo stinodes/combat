@@ -21,6 +21,12 @@ export const characterApi = (() => {
       store.set(`previews.${preview.id}`, preview)
       return preview
     },
+
+    async deleteCharacter(id: string): Promise<void> {
+      store.delete(`previews.${id}`)
+      store.delete(`character.${id}`)
+    },
+
     async loadCharacter(id: string) {
       const preview = this.preview(id)
       if (!preview) return null
@@ -47,6 +53,9 @@ export const setupCharacterIPC = () => {
   ipcMain.handle('character:previews', characterApi.previews)
   ipcMain.handle('character:preview', (_, id: string) =>
     characterApi.preview(id),
+  )
+  ipcMain.handle('character:delete', (_, id: string) =>
+    characterApi.deleteCharacter(id),
   )
   ipcMain.handle('character:load', (_, id: string) =>
     characterApi.loadCharacter(id),

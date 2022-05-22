@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('api', {
   previews: () => ipcRenderer.invoke('character:previews'),
   preview: (id: string) => ipcRenderer.invoke('character:preview', id),
   loadCharacter: (id: string) => ipcRenderer.invoke('character:load', id),
+  deleteCharacter: (id: string) => ipcRenderer.invoke('character:delete', id),
   raw: (id: string) => ipcRenderer.invoke('character:raw', id),
   character: (id: string) => ipcRenderer.invoke('character:character', id),
 
