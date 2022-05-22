@@ -21,6 +21,10 @@ export const Overview = () => {
     await window.api.createPreview()
     await fetchCharacters()
   }
+  const onDelete = async (id: string) => {
+    await window.api.deleteCharacter(id)
+    await fetchCharacters()
+  }
 
   useEffect(() => {
     fetchCharacters()
@@ -43,7 +47,7 @@ export const Overview = () => {
         {characters.map(char => (
           <Col width={1 / 4} key={char.id} mb={3}>
             <Link to={`${char.id}`} style={{ textDecoration: 'none' }}>
-              <CharacterCard character={char} />
+              <CharacterCard character={char} onDelete={onDelete} />
             </Link>
           </Col>
         ))}

@@ -13,6 +13,7 @@ export interface API {
   preview: (id: string) => Promise<null | CharacterPreview>
   raw: (id: string) => Promise<null | AuroraCharacter>
   loadCharacter: (id: string) => Promise<null | Character>
+  deleteCharacter: (id: string) => Promise<void>
   character: (id: string) => Promise<null | Character>
 
   settings: () => Promise<Settings>

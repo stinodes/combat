@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { Card, themeColor } from 'stinodes-ui'
-import Hooded from '../../assets/hooded.jpeg'
+import Hooded from '../assets/hooded.jpeg'
 
 type PortraitProps = {
   image: string

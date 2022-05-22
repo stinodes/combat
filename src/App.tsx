@@ -5,14 +5,15 @@ import { Character } from './character'
 import { useLoading } from './common/useLoading'
 import { NavMenuLink } from './navigation/Link'
 import { Navigation } from './navigation/Navigation'
+import { Onboarding } from './onboarding'
 import { Overview } from './overview'
-import { Resources, RESOURCE_KEY } from './resources'
+import { Resources } from './resources'
 import { Settings } from './settings'
 
 function App() {
   const [loading, fetch] = useLoading(window.api.load)
   useEffect(() => {
-    fetch(localStorage.getItem(RESOURCE_KEY))
+    fetch()
   }, [])
 
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="characters/:characterId" element={<Character />} />
             <Route path="characters" element={<Overview />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="/" element={<Onboarding />} />
           </Routes>
         )}
       </>

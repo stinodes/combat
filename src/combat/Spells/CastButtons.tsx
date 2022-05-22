@@ -56,6 +56,7 @@ export const CastButtons = ({ className, minSlot }: CastButtonsProps) => {
       <Flex flexWrap="wrap" mt={1}>
         {usableSlots.map(slot => (
           <CastButton
+            key={slot}
             width={1 / 6}
             disabled={classCasting.slots[slot as SpellSlotName].current === 0}
             onClick={() =>
