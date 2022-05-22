@@ -103,8 +103,8 @@ export type ResourceSetter = {
   _: string
 }
 
-export type Resource = ResourceMeta & {
-  $: ResourceMeta
+export type Resource<MetaExtra = {}> = {
+  $: ResourceMeta & MetaExtra
   description?: ResourceDescription
   rules?: ResourceRule[]
   supports?: ID[]

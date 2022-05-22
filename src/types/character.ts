@@ -19,6 +19,13 @@ export enum AbilityScoreIDSubString {
   'charisma' = 'CHARISMA',
 }
 
+export enum ActionTime {
+  'attack' = 'Attack',
+  'reaction' = 'Reaction',
+  'bonus_action' = 'Bonus Action',
+  'action' = 'Action',
+}
+
 export type CharacterPreview = {
   path: string
   name: string
@@ -40,13 +47,30 @@ export type Class = {
 export type Stats = {
   [stat: string]: StatRule[]
 }
+export type Spell = {
+  id: ID
+  name: string
+  slotLevel: number
+  action: ActionTime
+  duration: string
+  range: string
+  prepared: boolean
+  isVerbal: boolean
+  isSomatic: boolean
+  isMaterial: boolean
+  isConcentration: boolean
+  isRitual: boolean
+  description: string
+}
 export type SpellCasting = {
   multiclass: boolean
   class: string
   ability: AbilityScore
   dc: number
   attack: number
+  prepare: boolean
   slots: { [slot in SpellSlotName]: number }
+  spells: Spell[]
 }
 export type Magic = {
   multiclass: boolean
@@ -55,7 +79,7 @@ export type Magic = {
 export type Action = {
   name: string
   id: ID
-  action: 'Attack' | 'Reaction' | 'Bonus Action' | 'Action' | string
+  action: ActionTime
   usage: null | number
   reset: null | 'Long Rest' | 'Short Rest'
   tooltip: string

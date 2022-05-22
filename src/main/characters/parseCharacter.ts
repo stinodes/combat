@@ -5,16 +5,18 @@ import {
   AbilityScoreIDSubString,
   AbilityScores,
   Action,
+  ActionTime,
   Character,
   Class,
   Magic,
+  Spell,
   SpellCasting,
   Stats,
 } from '../../types/character'
 import { ID, Resource } from '../../types/dnd'
 import { resources } from '../resources'
 
-const getLevels = (
+const parseLevels = (
   character: null | AuroraCharacter,
 ): Element<{ class?: string; rndhp?: string }>[] => {
   if (!character) return []
@@ -26,8 +28,8 @@ const getLevels = (
   return levels
 }
 
-const getClasses = (character: null | AuroraCharacter) => {
-  const levels = getLevels(character)
+const parseClasses = (character: null | AuroraCharacter) => {
+  const levels = parseLevels(character)
   const sum = resources.resourcesForIds(
     character?.build[0].sum[0].element.map(e => e.$.id) || [],
   )
@@ -92,7 +94,7 @@ const getClasses = (character: null | AuroraCharacter) => {
     .filter(Boolean) as Class[]
 }
 
-const getBaseAbilityScores = (character: null | AuroraCharacter) => {
+const parseBaseAbilityScores = (character: null | AuroraCharacter) => {
   if (!character)
     return {
       [AbilityScore.strength]: 10,
@@ -116,7 +118,7 @@ const getBaseAbilityScores = (character: null | AuroraCharacter) => {
     }, {} as AbilityScores)
 }
 
-const getEquipment = (
+const parseEquipment = (
   character: null | AuroraCharacter,
 ): { [slot: string]: Resource } => {
   const equipment = character
@@ -138,9 +140,9 @@ const getEquipment = (
   }, {} as { [slot: string]: Resource })
 }
 
-const getStats = (character: null | AuroraCharacter): Stats => {
-  const classes = getClasses(character)
-  const baseAbilityScores = getBaseAbilityScores(character)
+const parseStats = (character: null | AuroraCharacter): Stats => {
+  const classes = parseClasses(character)
+  const baseAbilityScores = parseBaseAbilityScores(character)
   const sum = resources.resourcesForIds(
     character?.build[0].sum[0].element.map(e => e.$.id) || [],
   )
@@ -195,7 +197,6 @@ const getStats = (character: null | AuroraCharacter): Stats => {
 
       element.rules[0].stat.forEach(stat => {
         const name = stat.$.name.toLowerCase()
-        console.log(name, stat)
         if (!prev[name]) prev[name] = []
         prev[name] = [...prev[name], stat]
       })
@@ -208,8 +209,32 @@ const getStats = (character: null | AuroraCharacter): Stats => {
   return stats
 }
 
-const getMagic = (character: null | AuroraCharacter): Magic => {
-  const classes = getClasses(character)
+const findSetter = (resource: Resource, setter: string): null | string =>
+  (resource.setters &&
+    resource.setters[0].set.find(s => s.$.name === setter)?._) ||
+  null
+
+const parseSpell = (spell: Resource, prepared: boolean): Spell => {
+  const durationSetter = findSetter(spell, 'duration')?.match(/(\d+ \w+)/)
+  return {
+    id: spell.$.id,
+    name: spell.$.name,
+    action: findSetter(spell, 'time') as ActionTime,
+    slotLevel: Number(findSetter(spell, 'level')),
+    range: findSetter(spell, 'range'),
+    prepared,
+    duration: durationSetter ? durationSetter[1] : 'Instantaneous',
+    isSomatic: findSetter(spell, 'hasSomaticComponent') === 'true',
+    isVerbal: findSetter(spell, 'hasVerbalComponent') === 'true',
+    isMaterial: findSetter(spell, 'hasMaterialComponent') === 'true',
+    isConcentration: findSetter(spell, 'isConcentration') === 'true',
+    isRitual: findSetter(spell, 'isRitual') === 'true',
+    description: spell.description,
+  }
+}
+
+const parseMagic = (character: null | AuroraCharacter): Magic => {
+  const classes = parseClasses(character)
 
   const magic: Magic = { multiclass: false, spellcasting: [] }
   if (!character) return magic
@@ -235,13 +260,26 @@ const getMagic = (character: null | AuroraCharacter): Magic => {
       return prev
     }, {} as { [name in SpellSlotName]: number })
 
+    const prepare =
+      (
+        resources.resourceForId(classMagic.$.source)
+          ?.spellcasting[0] as Resource<{ prepare: string }>
+      ).$.prepare === 'true'
+
     const spellcasting: SpellCasting = {
       multiclass: magic.multiclass && !c.soloSpellslots,
       class: classMagic.$.name,
       ability: classMagic.$.ability.toLowerCase() as AbilityScore,
       dc: Number(classMagic.$.dc),
       attack: Number(classMagic.$.attack),
+      prepare,
       slots,
+      spells: classMagic.spells[0].spell.map(spell =>
+        parseSpell(
+          resources.resourceForId(spell.$.id),
+          prepare ? spell.$.prepared === 'true' : true,
+        ),
+      ),
     }
 
     magic.spellcasting.push(spellcasting)
@@ -250,12 +288,12 @@ const getMagic = (character: null | AuroraCharacter): Magic => {
   return magic
 }
 
-const getActions = (character: AuroraCharacter) => {
+const parseActions = (character: AuroraCharacter) => {
   const minimalCharacter = {
-    level: getLevels(character).length,
-    classes: getClasses(character),
-    equipment: getEquipment(character),
-    stats: getStats(character),
+    level: parseLevels(character).length,
+    classes: parseClasses(character),
+    equipment: parseEquipment(character),
+    stats: parseStats(character),
   }
 
   const actions = resources
@@ -273,7 +311,7 @@ const getActions = (character: AuroraCharacter) => {
       const action: Action = {
         name: rawaction.$.name,
         id: rawaction.$.id,
-        action: rawaction.sheet[0].$.action,
+        action: rawaction.sheet[0].$.action as ActionTime,
         usage: usage && Number(usage),
         reset: reset as Action['reset'],
         tooltip: typeof tooltip === 'string' ? tooltip : tooltip._,
@@ -291,12 +329,12 @@ const getActions = (character: AuroraCharacter) => {
 export const parseCharacter = (
   character: null | AuroraCharacter,
 ): Character => {
-  const levels = getLevels(character)
-  const classes = getClasses(character)
-  const equipment = getEquipment(character)
-  const stats = getStats(character)
-  const magic = getMagic(character)
-  const actions = getActions(character)
+  const levels = parseLevels(character)
+  const classes = parseClasses(character)
+  const equipment = parseEquipment(character)
+  const stats = parseStats(character)
+  const magic = parseMagic(character)
+  const actions = parseActions(character)
 
   // const classFeatures = resources.resourcesForIds(
   //   character?.build[0].sum[0].element

@@ -26,8 +26,8 @@ export const resources = (() => {
     path() {
       return path
     },
-    resourceForId(id: string): Resource {
-      return data.resources[id]
+    resourceForId<M = {}>(id: string): Resource<M> {
+      return data.resources[id] as Resource<M>
     },
     resourcesForIds(ids: string[]): Resource[] {
       return ids.map(this.resourceForId)

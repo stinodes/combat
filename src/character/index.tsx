@@ -4,6 +4,7 @@ import { Actions } from '../combat/Actions'
 import { CombatProvider } from '../combat/CombatContext'
 import { Controls } from '../combat/Controls'
 import { Log } from '../combat/Log'
+import { Spells } from '../combat/Spells'
 import { UnitFrame } from '../combat/UnitFrame'
 import { Tabs } from '../common/Tabs'
 import { CharacterProvider, useCharacterLoading } from './CharacterContext'
@@ -36,8 +37,6 @@ export const Character = () => {
                       maxWidth={1400}
                     >
                       <Accordeon
-                        visible={true}
-                        onChange={() => {}}
                         header={
                           <Flex justifyContent="center" py={2}>
                             <H4>Features & Traits</H4>
@@ -45,6 +44,15 @@ export const Character = () => {
                         }
                       >
                         <Actions />
+                      </Accordeon>
+                      <Accordeon
+                        header={
+                          <Flex justifyContent="center" py={2}>
+                            <H4>Spells</H4>
+                          </Flex>
+                        }
+                      >
+                        <Spells />
                       </Accordeon>
                     </Layout>
                   </Flex>

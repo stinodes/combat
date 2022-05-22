@@ -22,7 +22,9 @@ export type CombatState = {
   maxHp: number
   hp: number
   shield: number
-  spellcasting: null | { [className: string]: CombatSpellcasting }
+  spellcasting: null | {
+    [className: string]: CombatSpellcasting
+  }
   features: { [id: ID]: CombatResource }
   log: CombatLog[]
 }
