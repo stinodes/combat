@@ -1,8 +1,7 @@
 export interface API {
   openDir: () => Promise<string>
 
-  load: (path?: string) => Promise<void>
-  path: () => Promise<string>
+  load: () => Promise<void>
   resourceForId: (id: string) => Promise<Resource>
   resourcesForIds: (ids: string[]) => Promise<Resource[]>
   resourceTypes: () => Promise<ResourceType[]>

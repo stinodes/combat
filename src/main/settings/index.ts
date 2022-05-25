@@ -6,6 +6,8 @@ import { resources } from '../resources'
 const store = new Store()
 
 const defaults: Settings = {
+  path: '',
+  indexes: [],
   resourceStats: [{ label: 'Ki', name: 'ki points:points', color: '#FE9920' }],
 }
 

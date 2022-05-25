@@ -14,20 +14,26 @@ const BottomBar = styled(Flex)`
   right: 0;
 `
 
-type SettingsFormState = { path: string; resources: string }
+export const INDEXES_REGEX = /^((ftp|http|https):\/\/[^ "]+)+$/
+
+type SettingsFormState = { path: string; resources: string; indexes: string }
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsFormState>({
     path: '',
     resources: '',
+    indexes: '',
   })
 
   const onSubmit = useCallback(async (settings: SettingsFormState) => {
+    if (!INDEXES_REGEX.test(settings.indexes)) return
+
     await window.api.saveSettings({
       path: settings.path,
       resourceStats: settings.resources?.split('\n').map(r => {
         const [label, name] = r.split('=')
         return { label, name, color: '#FE9920' }
       }),
+      indexes: settings.indexes?.split('\n'),
     })
   }, [])
 
@@ -40,11 +46,13 @@ export const Settings = () => {
           resources: settings.resourceStats
             ?.map(r => `${r.label}=${r.name}`)
             .join('\n'),
+          indexes: settings.indexes.join('\n'),
         })
       } catch (e) {
         setSettings({
           path: '',
           resources: '',
+          indexes: '',
         })
       }
     }, [setSettings]),
@@ -85,10 +93,18 @@ export const Settings = () => {
                     <Icon icon="folder" />
                   </Button>
                 </Flex>
+
+                <FormTextAreaField
+                  name="indexes"
+                  label="Index URLs"
+                  style={{ height: 100 }}
+                  placeholder={`Linebreak-separated indexes here.`}
+                />
+
                 <FormTextAreaField
                   name="resources"
                   label="Resource stats"
-                  style={{ height: 400 }}
+                  style={{ height: 200 }}
                   placeholder={`Ki=ki:points
 Sorcery Points=sorcery points:points`}
                 />
