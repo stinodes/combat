@@ -1,17 +1,52 @@
 import fs from 'fs'
+import axios from 'axios'
 import { parseStringPromise } from 'xml2js'
 import { Resource, ResourceDB } from '../../types/dnd'
 import INTERNAL from './internal_elements.xml'
 
-export const parseResources = async (path: string) => {
+const flattenReduce = <V extends any>(prev: V[], i: V[]) => prev.concat(i)
+
+export const parseResources = async ({
+  path,
+  indexes,
+}: {
+  path: string
+  indexes: string[]
+}) => {
   const fileNames = await recursivelyLoadFileNames(path)
 
   const readFiles = await Promise.all(fileNames.map(readFile))
+  const indexContents = await Promise.all(indexes.map(recursivelyLoadIndexes))
+
   const parsedFiles = await Promise.all(
-    readFiles.concat(INTERNAL).map(parseFile),
+    readFiles
+      .concat(indexContents.reduce(flattenReduce, []))
+      .concat(INTERNAL)
+      .map(parseFile),
   )
 
   return indexResources(parsedFiles)
+}
+
+type Files = { file: FileIndex[] }
+type FileIndex = { $: { name: string; url: string } }
+type Index = { index: { files: Files[] } }
+
+const recursivelyLoadIndexes = async (url: string): Promise<string[]> => {
+  const { data } = await axios.get(url)
+
+  if (url.endsWith('.index')) {
+    const content = (await parseStringPromise(data)) as Index
+    const nestedUrls = content.index.files
+      .map(files => files.file)
+      .reduce(flattenReduce, [] as FileIndex[])
+      .map(fileIndex => fileIndex.$.url)
+
+    const result = await Promise.all(nestedUrls.map(recursivelyLoadIndexes))
+    return result.reduce(flattenReduce, [] as string[])
+  } else {
+    return [data]
+  }
 }
 
 const recursivelyLoadFileNames = async (dirPath: string): Promise<string[]> => {

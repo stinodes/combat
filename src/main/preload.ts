@@ -4,8 +4,7 @@ import { Settings } from '../types/settings'
 contextBridge.exposeInMainWorld('api', {
   openDir: () => ipcRenderer.invoke('dialog:openDir'),
 
-  load: (path: string) => ipcRenderer.invoke('resources:load', path),
-  path: () => ipcRenderer.invoke('resources:path'),
+  load: (force: boolean) => ipcRenderer.invoke('resources:load', force),
   resourceForId: (id: string) =>
     ipcRenderer.invoke('resources:resourceForId', id),
   resourcesForIds: (ids: string[]) =>

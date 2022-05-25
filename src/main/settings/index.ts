@@ -6,12 +6,16 @@ import { resources } from '../resources'
 const store = new Store()
 
 const defaults: Settings = {
+  path: '',
+  indexes: [],
   resourceStats: [{ label: 'Ki', name: 'ki points:points', color: '#FE9920' }],
+  autoReload: true,
 }
 
 export const settingsApi = (() => {
-  let settings: Settings = (store.get('settings') || defaults) as {
-    [key: string]: string
+  let settings: Settings = {
+    ...defaults,
+    ...((store.get('settings') as Settings) || {}),
   }
   return {
     settings() {
@@ -21,9 +25,12 @@ export const settingsApi = (() => {
       return settings[key] as R
     },
     saveSettings(newSettings: Settings) {
+      let reload =
+        newSettings.path !== settings.path ||
+        newSettings.indexes !== settings.indexes
       settings = newSettings
       store.set('settings', newSettings)
-      resources.load()
+      reload && resources.load(true)
     },
   }
 })()

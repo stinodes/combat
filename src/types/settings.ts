@@ -5,5 +5,7 @@ export type ResourceStatSetting = {
 }
 export type Settings = Partial<{
   path: string
+  indexes: string[]
+  autoReload: boolean
   resourceStats: ResourceStatSetting[]
 }>

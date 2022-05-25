@@ -1,20 +1,39 @@
-import { useEffect, useState } from 'react'
-import { Button, Flex, Icon, Layout, Paragraph, TextField } from 'stinodes-ui'
+import { SyntheticEvent, useEffect, useState } from 'react'
+import {
+  Button,
+  Flex,
+  Icon,
+  Layout,
+  Paragraph,
+  TextAreaField,
+  TextField,
+} from 'stinodes-ui'
 import { FadeContainer } from '../common/FadeContainer'
+import { INDEXES_REGEX } from '../settings'
 import { IntroButton } from './IntroButton'
 import { IntroTitle } from './IntroTitle'
 
 export const SetUp = ({ next }: { next: () => void }) => {
   const [path, setPath] = useState('')
+  const [indexes, setIndexes] = useState('')
 
   const onSubmit = async () => {
+    if (!INDEXES_REGEX.test(indexes)) return
+
     const settings = await window.api.settings()
-    await window.api.saveSettings({ ...settings, path })
+    await window.api.saveSettings({
+      ...settings,
+      path,
+      indexes: indexes.split('\n'),
+    })
     next()
   }
 
   useEffect(() => {
-    window.api.path().then(path => setPath(path || ''))
+    window.api.settings().then(settings => {
+      setPath(settings.path || '')
+      setIndexes(settings.indexes?.join('\n') || '')
+    })
   }, [])
 
   return (
@@ -46,8 +65,25 @@ export const SetUp = ({ next }: { next: () => void }) => {
             </Paragraph>
 
             <Flex pb={2} />
+
+            <TextAreaField
+              label="Index URLs"
+              style={{ height: 100 }}
+              value={indexes}
+              onChange={(e: SyntheticEvent<HTMLTextAreaElement>) =>
+                setIndexes(e.currentTarget.value)
+              }
+              placeholder={`Linebreak-separated indexes here.`}
+            />
+            <Paragraph color="surfaces.0">
+              Alternatively, enter a list of *.index files (generally hosted on
+              github). These will be downloaded at start-up to be used.
+            </Paragraph>
+
+            <Flex pb={2} />
+
             <IntroButton
-              disabled={!path}
+              disabled={!path && !indexes}
               onClick={onSubmit}
               title={!path ? 'Select your resource folder first.' : undefined}
             >

@@ -1,11 +1,13 @@
 import { ipcMain } from 'electron'
+import Store from 'electron-store'
 import { Resource, ResourceDB, ResourceType } from '../../types/dnd'
 import { settingsApi } from '../settings'
 import { parseResources } from './parse'
 
+const store = new Store()
+
 export const resources = (() => {
   let loaded = false
-  let path: string = ''
   let data: ResourceDB = {
     resources: {},
     typeIndex: Object.keys(ResourceType).reduce(
@@ -15,17 +17,23 @@ export const resources = (() => {
   }
 
   return {
-    async load(newPath: void | string = settingsApi.setting<string>('path')) {
-      if (!newPath) return Promise.reject()
+    async load(reload: boolean) {
+      console.log(reload, settingsApi.setting('autoReload'))
+      if (reload || settingsApi.setting('autoReload')) {
+        data = await parseResources({
+          path: settingsApi.setting('path'),
+          indexes: settingsApi.setting('indexes'),
+        })
 
-      path = newPath
-      data = await parseResources(path)
+        store.set('resources', data)
+      }
+
+      const storeContent = store.get('resources', data) as void | ResourceDB
+      if (storeContent) data = storeContent
+
       loaded = true
     },
 
-    path() {
-      return path
-    },
     resourceForId<M = {}>(id: string): Resource<M> {
       return data.resources[id] as Resource<M>
     },
@@ -45,8 +53,7 @@ export const resources = (() => {
 })()
 
 export const setupResourcesIPC = () => {
-  ipcMain.handle('resources:load', (_, path: string) => resources.load(path))
-  ipcMain.handle('resources:path', () => resources.path())
+  ipcMain.handle('resources:load', (_, force: boolean) => resources.load(force))
   ipcMain.handle('resources:resourceForId', (_, id: string) =>
     resources.resourceForId(id),
   )
