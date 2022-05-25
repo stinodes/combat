@@ -1,7 +1,17 @@
 import styled from '@emotion/styled'
 import { Form, Formik } from 'formik'
 import { useCallback, useEffect, useState } from 'react'
-import { Button, Flex, H1, Icon, Layout, Spinner, TextField } from 'stinodes-ui'
+import {
+  Button,
+  Checkbox,
+  Flex,
+  H1,
+  Icon,
+  Layout,
+  Paragraph,
+  Spinner,
+  TextField,
+} from 'stinodes-ui'
 import { FormTextAreaField, SubmitButton } from '../common/FormikFields'
 import { useLoading } from '../common/useLoading'
 
@@ -16,12 +26,18 @@ const BottomBar = styled(Flex)`
 
 export const INDEXES_REGEX = /^((ftp|http|https):\/\/[^ "]+)+$/
 
-type SettingsFormState = { path: string; resources: string; indexes: string }
+type SettingsFormState = {
+  path: string
+  resources: string
+  indexes: string
+  autoReload: boolean
+}
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsFormState>({
     path: '',
     resources: '',
     indexes: '',
+    autoReload: true,
   })
 
   const onSubmit = useCallback(async (settings: SettingsFormState) => {
@@ -47,12 +63,14 @@ export const Settings = () => {
             ?.map(r => `${r.label}=${r.name}`)
             .join('\n'),
           indexes: settings.indexes.join('\n'),
+          autoReload: settings.autoReload,
         })
       } catch (e) {
         setSettings({
           path: '',
           resources: '',
           indexes: '',
+          autoReload: true,
         })
       }
     }, [setSettings]),
@@ -100,6 +118,23 @@ export const Settings = () => {
                   style={{ height: 100 }}
                   placeholder={`Linebreak-separated indexes here.`}
                 />
+
+                <Checkbox
+                  onChange={e =>
+                    setFieldValue('autoReload', e.currentTarget.checked)
+                  }
+                  checked={values.autoReload}
+                >
+                  Auto-reload resources on start-up.
+                </Checkbox>
+                <Paragraph font-size={12} color="surfaces.0">
+                  When using index-files, this will drastically increase
+                  start-up times, as the app will update its resources from the
+                  internet. This will keep your resources up-to-date
+                  automatically, however.
+                </Paragraph>
+
+                <Flex pb={2} />
 
                 <FormTextAreaField
                   name="resources"

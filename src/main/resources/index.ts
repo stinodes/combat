@@ -1,7 +1,10 @@
 import { ipcMain } from 'electron'
+import Store from 'electron-store'
 import { Resource, ResourceDB, ResourceType } from '../../types/dnd'
 import { settingsApi } from '../settings'
 import { parseResources } from './parse'
+
+const store = new Store()
 
 export const resources = (() => {
   let loaded = false
@@ -14,11 +17,20 @@ export const resources = (() => {
   }
 
   return {
-    async load() {
-      data = await parseResources({
-        path: settingsApi.setting('path'),
-        indexes: settingsApi.setting('indexes'),
-      })
+    async load(reload: boolean) {
+      console.log(reload, settingsApi.setting('autoReload'))
+      if (reload || settingsApi.setting('autoReload')) {
+        data = await parseResources({
+          path: settingsApi.setting('path'),
+          indexes: settingsApi.setting('indexes'),
+        })
+
+        store.set('resources', data)
+      }
+
+      const storeContent = store.get('resources', data) as void | ResourceDB
+      if (storeContent) data = storeContent
+
       loaded = true
     },
 
@@ -41,7 +53,7 @@ export const resources = (() => {
 })()
 
 export const setupResourcesIPC = () => {
-  ipcMain.handle('resources:load', _ => resources.load())
+  ipcMain.handle('resources:load', (_, force: boolean) => resources.load(force))
   ipcMain.handle('resources:resourceForId', (_, id: string) =>
     resources.resourceForId(id),
   )
