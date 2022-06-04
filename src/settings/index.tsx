@@ -24,7 +24,7 @@ const BottomBar = styled(Flex)`
   right: 0;
 `
 
-export const INDEXES_REGEX = /^((ftp|http|https):\/\/[^ "]+)+$/
+export const INDEXES_REGEX = /^((ftp|http|https):\/\/[^ "]+)*$/
 
 type SettingsFormState = {
   path: string

@@ -307,14 +307,19 @@ const parseActions = (character: AuroraCharacter) => {
         minimalCharacter,
         rawaction.sheet[0].$.usage,
       ).split('/') || [null, null]
-      const tooltip = rawaction.sheet[0].description[0]
+      const tooltip =
+        rawaction.sheet[0].description && rawaction.sheet[0].description[0]
       const action: Action = {
         name: rawaction.$.name,
         id: rawaction.$.id,
         action: rawaction.sheet[0].$.action as ActionTime,
         usage: usage && Number(usage),
         reset: reset as Action['reset'],
-        tooltip: typeof tooltip === 'string' ? tooltip : tooltip._,
+        tooltip: !tooltip
+          ? ''
+          : typeof tooltip === 'string'
+          ? tooltip
+          : tooltip._,
         description: rawaction.description[0],
       }
       return action

@@ -33,6 +33,8 @@ type FileIndex = { $: { name: string; url: string } }
 type Index = { index: { files: Files[] } }
 
 const recursivelyLoadIndexes = async (url: string): Promise<string[]> => {
+  if (!url) return []
+
   const { data } = await axios.get(url)
 
   if (url.endsWith('.index')) {
