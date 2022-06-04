@@ -1,7 +1,7 @@
 {
   "name": "dnd-character",
   "productName": "dnd-character",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "DnD combat tracker",
   "main": ".webpack/main",
   "scripts": {
