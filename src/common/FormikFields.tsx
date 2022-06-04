@@ -40,5 +40,5 @@ type SBProps = { children: ReactNode }
 
 export const SubmitButton = (props: SBProps) => {
   const { isSubmitting } = useFormikContext()
-  return <Button loading={isSubmitting} {...props} />
+  return <Button type="submit" loading={isSubmitting} {...props} />
 }
